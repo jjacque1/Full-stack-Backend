@@ -6,29 +6,6 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-//-----TEST ROUTE------
-
-router.post("/test/users", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-
-    const user = await User.create({ name, email, password });
-
-    return res.status(201).json({
-      message: "User created",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-      passwordWasHashed: user.password !== password,
-    });
-  } catch (error) {
-    return res.status(400).json({ message: error.message });
-  }
-});
-
-
 //----SIGN UP ROUTE---------
 
 router.post("/signup", async (req, res) => {
@@ -36,12 +13,20 @@ router.post("/signup", async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "Please enter your name, email, and password to continue" });
+      return res
+        .status(400)
+        .json({
+          message: "Please enter your name, email, and password to continue",
+        });
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email already in use, click log in or forgot password" });
+      return res
+        .status(400)
+        .json({
+          message: "Email already in use, click log in or forgot password",
+        });
     }
 
     const user = await User.create({ name, email, password });
@@ -66,7 +51,9 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Please enter your email and password to continue" });
+      return res
+        .status(400)
+        .json({ message: "Please enter your email and password to continue" });
     }
 
     const user = await User.findOne({ email });
@@ -81,12 +68,9 @@ router.post("/login", async (req, res) => {
 
     //======CREATE Jwt token============//
 
-    const token = jwt.sign(
-          { id: user._id },
-          process.env.JWT_SECRET,
-          { expiresIn: "1d" }
-        );
-
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
 
     return res.status(200).json({
       message: "Login successful",
@@ -101,7 +85,5 @@ router.post("/login", async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 });
-
-
 
 module.exports = router;

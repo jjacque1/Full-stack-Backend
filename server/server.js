@@ -5,6 +5,7 @@ const express = require("express");
 const cors = require("cors");
 
 const authRoutes = require("./src/routes/authRoutes");
+const projectRoutes = require("./src/routes/projectRoutes");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/projects", projectRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

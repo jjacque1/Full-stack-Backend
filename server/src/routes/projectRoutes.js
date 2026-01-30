@@ -1,6 +1,10 @@
-//=======Project route================//
+const express = require("express");
+const Project = require("../models/Projects");
+const authMiddleware = require("../middleware/authMiddleware");
+const router = express.Router();
 
-app.post("/api/projects", authMiddleware, async (req, res) => {
+
+router.post("/", authMiddleware, async (req, res) => {
   try {
     const { name, description } = req.body;
 
@@ -19,3 +23,5 @@ app.post("/api/projects", authMiddleware, async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 });
+
+module.exports = router;

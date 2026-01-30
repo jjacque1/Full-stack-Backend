@@ -19,7 +19,6 @@ server/
     middleware/
       authMiddleware.js
       ownerMiddleware.js
-    app.js
     server.js
   .env
   .gitignore

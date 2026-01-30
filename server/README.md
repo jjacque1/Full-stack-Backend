@@ -1,39 +1,41 @@
-# Title
-Full-Stack-MERN-APP
+# Full-Stack-MERN-APP
 
-# Auther
+## Author
 Jackson Jacque
 
-# Link
+## Live Links
+- Frontend: Add later
+- Backend: Add later
 
-# ScreenShot 
+## Screenshot
+Add later
 
-# Server Folder Strucutre 
+---
+
+## Server Folder Structure
+
+```txt
 server/
   src/
     config/
       db.js
     models/
       User.js
-      Project.js
-      Task.js
+      Projects.js
+      Tasks.js
     routes/
       authRoutes.js
       projectRoutes.js
       taskRoutes.js
-    controllers/
-      authController.js
-      projectController.js
-      taskController.js
     middleware/
       authMiddleware.js
-      ownerMiddleware.js
-    server.js
+  server.js
   .env
   .gitignore
   package.json
 
-# Server Dependencies
+
+## Server Dependencies
 1. express - Web framework
 2. mongoose -  MongoDB ODM
 3. dotenv - Environment variables

@@ -2,7 +2,7 @@ const express = require("express");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const Project = require("../models/Projects");
-const Task = require("../models/Task");
+const Task = require("../models/Tasks");
 
 const router = express.Router({ mergeParams: true }); //lets this router read :projectId from the parent URL.
 

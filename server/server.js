@@ -6,6 +6,8 @@ const User = require("./src/models/User");
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const bcrypt = require("bcrypt");
+
 
 app.use(cors());
 app.use(express.urlencoded());
@@ -56,6 +58,39 @@ app.post("/api/auth/signup", async (req, res) => {
 
     return res.status(201).json({
       message: "Signup successful",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+//----LOGIN Route------//
+
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Please enter your email and password to continue" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Wrong email or password" });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(400).json({ message: "Wrong email or password" });
+    }
+
+    return res.status(200).json({
+      message: "Login successful",
       user: {
         id: user._id,
         name: user.name,

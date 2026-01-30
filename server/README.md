@@ -25,6 +25,17 @@ server/
   .gitignore
   package.json
 
+# Server Dependencies
 
+1. express - Web framework
+2. mongoose -  MongoDB ODM
+3. dotenv - Environment variables
+4. cors - Cross-origin requests
+5. bcrypt - Password hashing
+6. jsonwebtoken - JWT authentication
+
+# Development Dependency
+
+1. nodemon 
 
 

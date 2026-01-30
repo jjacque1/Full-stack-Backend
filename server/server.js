@@ -8,6 +8,7 @@ const app = express();
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const authMiddleware = require("./src/middleware/authMiddleware");
 
 
 app.use(cors());
@@ -17,6 +18,14 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Task App API is alive and well");
 });
+
+app.get("/api/protected", authMiddleware, (req, res) => {
+  return res.status(200).json({
+    message: "You are authorized",
+    user: req.user,
+  });
+});
+
 
 //-----TEST ROUTE------
 

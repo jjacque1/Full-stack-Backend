@@ -14,7 +14,9 @@ router.post("/", authMiddleware, async (req, res) => {
     const { title, description, status } = req.body;
 
     if (!title) {
-      return res.status(400).json({ message: "Please Add Task Title to continue" });
+      return res
+        .status(400)
+        .json({ message: "Please Add Task Title to continue" });
     }
 
     const project = await Project.findById(projectId);
@@ -24,7 +26,9 @@ router.post("/", authMiddleware, async (req, res) => {
     }
 
     if (project.owner.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to add tasks to this project" });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to add tasks to this project" });
     }
 
     const task = await Task.create({
@@ -53,10 +57,14 @@ router.get("/", authMiddleware, async (req, res) => {
     }
 
     if (project.owner.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to view tasks for this project" });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to view tasks for this project" });
     }
 
-    const tasks = await Task.find({ project: projectId }).sort({ createdAt: -1 });
+    const tasks = await Task.find({ project: projectId }).sort({
+      createdAt: -1,
+    });
 
     return res.status(200).json(tasks);
   } catch (error) {
@@ -78,7 +86,9 @@ router.put("/:taskId", authMiddleware, async (req, res) => {
     }
 
     if (project.owner.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to update tasks for this project" });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to update tasks for this project" });
     }
 
     const task = await Task.findOne({ _id: taskId, project: projectId });
@@ -99,6 +109,36 @@ router.put("/:taskId", authMiddleware, async (req, res) => {
   }
 });
 
+// DELETE TASK in a project (Owner only)
 
+router.delete("/:taskId", authMiddleware, async (req, res) => {
+  try {
+    const { projectId, taskId } = req.params;
+
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    if (project.owner.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete tasks for this project" });
+    }
+
+    const task = await Task.findOne({ _id: taskId, project: projectId });
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    await task.deleteOne();
+
+    return res.status(200).json({ message: "Task deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
 
 module.exports = router;

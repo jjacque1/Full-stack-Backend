@@ -64,5 +64,41 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
+// UPDATE TASK in a project (Owner only)
+
+router.put("/:taskId", authMiddleware, async (req, res) => {
+  try {
+    const { projectId, taskId } = req.params;
+    const { title, description, status } = req.body;
+
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    if (project.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to update tasks for this project" });
+    }
+
+    const task = await Task.findOne({ _id: taskId, project: projectId });
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    if (title !== undefined) task.title = title;
+    if (description !== undefined) task.description = description;
+    if (status !== undefined) task.status = status;
+
+    await task.save();
+
+    return res.status(200).json(task);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+
 
 module.exports = router;

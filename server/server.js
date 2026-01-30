@@ -6,12 +6,16 @@ const cors = require("cors");
 
 const authRoutes = require("./src/routes/authRoutes");
 const projectRoutes = require("./src/routes/projectRoutes");
+const taskRoutes = require("./src/routes/taskRoutes");
+
 
 const app = express();
 
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use("/api/projects/:projectId/tasks", taskRoutes);
+
 
 app.get("/", (req, res) => {
   res.send("Task App API is alive and well");
@@ -127,11 +131,22 @@ ME
 
 {
     "owner": "697cdaec79a71f62c75d20c7",
-    "name": "Jackson's Project",
-    "description": "This project belongs to Jackson",
-    "_id": "697cdc6e9c9c1b022c8b9bdb",
-    "createdAt": "2026-01-30T16:29:34.581Z",
-    "updatedAt": "2026-01-30T16:29:34.581Z",
+    "name": "Tasks Demo Project",
+    "description": "Project created to demo tasks",
+    "_id": "697ce4b2d1966f42ef530217",
+    "createdAt": "2026-01-30T17:04:50.677Z",
+    "updatedAt": "2026-01-30T17:04:50.677Z",
+    "__v": 0
+}
+
+{
+    "project": "697ce4b2d1966f42ef530217",
+    "title": "First Task",
+    "description": "This task belongs to the new project",
+    "status": "To Do",
+    "_id": "697ce513cf0decabab16e3e0",
+    "createdAt": "2026-01-30T17:06:27.437Z",
+    "updatedAt": "2026-01-30T17:06:27.437Z",
     "__v": 0
 }
 

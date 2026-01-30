@@ -13,20 +13,16 @@ router.post("/signup", async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res
-        .status(400)
-        .json({
-          message: "Please enter your name, email, and password to continue",
-        });
+      return res.status(400).json({
+        message: "Please enter your name, email, and password to continue",
+      });
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res
-        .status(400)
-        .json({
-          message: "Email already in use, click log in or forgot password",
-        });
+      return res.status(400).json({
+        message: "Email already in use, click log in or forgot password",
+      });
     }
 
     const user = await User.create({ name, email, password });

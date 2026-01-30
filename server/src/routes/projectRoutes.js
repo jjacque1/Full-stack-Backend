@@ -3,13 +3,14 @@ const Project = require("../models/Projects");
 const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 
-
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const { name, description } = req.body;
 
     if (!name) {
-      return res.status(400).json({ message: "Please enter a project name to continue" });
+      return res
+        .status(400)
+        .json({ message: "Please enter a project name to continue" });
     }
 
     const project = await Project.create({
@@ -24,11 +25,13 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
-// GET ALL PROJECTS 
+// GET ALL PROJECTS
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const projects = await Project.find({ owner: req.user._id }).sort({ createdAt: -1 });
+    const projects = await Project.find({ owner: req.user._id }).sort({
+      createdAt: -1,
+    });
     return res.status(200).json(projects);
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -48,7 +51,9 @@ router.get("/:projectId", authMiddleware, async (req, res) => {
     }
 
     if (project.owner.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to view this project" });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to view this project" });
     }
 
     return res.status(200).json(project);
@@ -71,7 +76,9 @@ router.put("/:projectId", authMiddleware, async (req, res) => {
     }
 
     if (project.owner.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to update this project" });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to update this project" });
     }
 
     if (name) {
@@ -103,7 +110,9 @@ router.delete("/:projectId", authMiddleware, async (req, res) => {
     }
 
     if (project.owner.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to delete this project" });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this project" });
     }
 
     await project.deleteOne();
@@ -113,8 +122,5 @@ router.delete("/:projectId", authMiddleware, async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 });
-
-
-
 
 module.exports = router;

@@ -40,4 +40,29 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
+// GET ALL TASKS for a project (Owner only)
+
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    if (project.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to view tasks for this project" });
+    }
+
+    const tasks = await Task.find({ project: projectId }).sort({ createdAt: -1 });
+
+    return res.status(200).json(tasks);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+
 module.exports = router;

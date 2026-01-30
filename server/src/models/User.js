@@ -19,12 +19,12 @@ const userSchema = new mongoose.Schema(
 //-------Add Bcrypt Hashing so the model hashes password automatically-------//
 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password"));
 
   const saltRounds = 10;
   this.password = await bcrypt.hash(this.password, saltRounds);
 
-  next();
+
 });
 
 module.exports = mongoose.model("User", userSchema);

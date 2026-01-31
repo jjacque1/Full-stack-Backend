@@ -1,6 +1,7 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
+import ProjectsPanel from "../components/Projects";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -32,6 +33,8 @@ function Dashboard() {
       >
         Log out
       </button>
+      <ProjectsPanel />
+
     </div>
   );
 }

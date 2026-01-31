@@ -1,5 +1,84 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiRequest } from "../util/api";
+
 function Signup() {
-  return <h2>Signup Page</h2>;
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setErrorMessage("");
+    setLoading(true);
+
+    try {
+      await apiRequest("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      // after successful signup, go to login
+      navigate("/login");
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div>
+      <h2>Signup</h2>
+
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Name</label>
+          <br />
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            type="text"
+            placeholder="Your name"
+          />
+        </div>
+
+        <div style={{ marginTop: 12 }}>
+          <label>Email</label>
+          <br />
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <div style={{ marginTop: 12 }}>
+          <label>Password</label>
+          <br />
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            type="password"
+            placeholder="password"
+          />
+        </div>
+
+        <button style={{ marginTop: 12 }} disabled={loading} type="submit">
+          {loading ? "Creating account..." : "Sign up"}
+        </button>
+
+        {errorMessage ? <p style={{ marginTop: 12 }}>{errorMessage}</p> : null}
+      </form>
+    </div>
+  );
 }
 
 export default Signup;

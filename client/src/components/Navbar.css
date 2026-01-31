@@ -1,0 +1,19 @@
+.nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #ddd;
+}
+.link {
+    margin: 8px;
+    text-decoration: none;
+    list-style-type: none;
+    color: black;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.logo {
+    height: 100px;
+    width: 100px;
+}

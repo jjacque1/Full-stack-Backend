@@ -4,11 +4,11 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
+import "../src/App.css"
 
 function App() {
   return (
-    <div>
-      <h1>Task Manger</h1>
+    <div className="app">
       <Navbar />
 
       <Routes>

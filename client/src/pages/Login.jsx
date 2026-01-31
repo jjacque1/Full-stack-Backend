@@ -1,7 +1,74 @@
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiRequest } from "../util/api";
 import { AuthContext } from "../context/authContext";
 
 function Login() {
-  return <h2>Login Page</h2>;
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setErrorMessage("");
+    setLoading(true);
+
+    try {
+      const data = await apiRequest("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      login(data.token, data.user);
+      navigate("/dashboard");
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div>
+      <h2>Login</h2>
+
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Email</label>
+          <br />
+          <input
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <div style={{ marginTop: 12 }}>
+          <label>Password</label>
+          <br />
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="password"
+          />
+        </div>
+
+        <button style={{ marginTop: 12 }} type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Log in"}
+        </button>
+
+        {errorMessage ? <p style={{ marginTop: 12 }}>{errorMessage}</p> : null}
+      </form>
+    </div>
+  );
 }
 
 export default Login;

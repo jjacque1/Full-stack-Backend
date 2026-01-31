@@ -30,7 +30,7 @@ function Dashboard() {
           navigate("/login");
         }}
       >
-        Logout
+        Log out
       </button>
     </div>
   );

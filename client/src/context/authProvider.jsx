@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AuthContext } from "./authContext";
 
-export default function AuthProvider({ children }) {
+export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => {
     return localStorage.getItem("token");
   });

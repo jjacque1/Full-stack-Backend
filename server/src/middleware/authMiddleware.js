@@ -23,9 +23,9 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: "User not found" });
     }
 
-    req.user = user;
+    req.user = user;       //Attach user to request: Protected routes has accesss to ((req.user._id) (req.user.email) (req.user.name))
 
-    next();
+    next();   //lets the request continues
   } catch (error) {
     return res.status(401).json({ message: "Invalid token" });
   }

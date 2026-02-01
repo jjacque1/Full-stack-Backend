@@ -10,9 +10,17 @@ const taskRoutes = require("./src/routes/taskRoutes");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:3001"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
 app.use("/api/projects/:projectId/tasks", taskRoutes);
 
 app.get("/", (req, res) => {

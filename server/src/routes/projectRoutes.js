@@ -44,6 +44,10 @@ router.get("/:projectId", authMiddleware, async (req, res) => {
   try {
     const { projectId } = req.params;
 
+     if (!mongoose.Types.ObjectId.isValid(projectId)) {
+          return res.status(400).json({ message: "Invalid project ID" });
+        }
+
     const project = await Project.findById(projectId);
 
     if (!project) {
@@ -68,6 +72,10 @@ router.put("/:projectId", authMiddleware, async (req, res) => {
   try {
     const { projectId } = req.params;
     const { name, description } = req.body;
+
+     if (!mongoose.Types.ObjectId.isValid(projectId)) {
+          return res.status(400).json({ message: "Invalid project ID" });
+        }
 
     const project = await Project.findById(projectId);
 
@@ -102,6 +110,10 @@ router.put("/:projectId", authMiddleware, async (req, res) => {
 router.delete("/:projectId", authMiddleware, async (req, res) => {
   try {
     const { projectId } = req.params;
+
+     if (!mongoose.Types.ObjectId.isValid(projectId)) {
+          return res.status(400).json({ message: "Invalid project ID" });
+        }
 
     const project = await Project.findById(projectId);
 

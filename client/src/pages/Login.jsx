@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../util/api";
 import { AuthContext } from "../context/authContext";
+import "./Login.css"
 
 function Login() {
   const navigate = useNavigate();
@@ -35,9 +36,9 @@ function Login() {
   }
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="wrapper">
 
+      <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Email</label>
@@ -61,7 +62,7 @@ function Login() {
           />
         </div>
 
-        <button style={{ marginTop: 12 }} type="submit" disabled={loading}>
+        <button className="form-btn" style={{ marginTop: 12 }} type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Log in"}
         </button>
 

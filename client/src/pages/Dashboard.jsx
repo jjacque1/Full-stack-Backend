@@ -5,7 +5,7 @@ import ProjectsPanel from "../components/Projects";
 
 function Dashboard() {
   const navigate = useNavigate();
-  const { isLoggedIn, user, logout } = useContext(AuthContext);
+  const { isLoggedIn, user } = useContext(AuthContext);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -18,21 +18,14 @@ function Dashboard() {
   }
 
   return (
-    <div>
+    <div className="wrapper">
       <h2>Dashboard</h2>
 
       <p>
         Logged in as: <strong>{user?.name}</strong> ({user?.email})
       </p>
 
-      <button
-        onClick={() => {
-          logout();
-          navigate("/login");
-        }}
-      >
-        Log out
-      </button>
+      
       <ProjectsPanel />
 
     </div>

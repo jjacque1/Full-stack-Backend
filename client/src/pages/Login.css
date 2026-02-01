@@ -1,0 +1,35 @@
+.wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+h2 {
+   padding: 36px;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 24px 120px;
+    width: 100%;
+}
+
+label {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+input {
+    padding: 16px;
+}
+
+button {
+    padding: 16px;
+    width: 230px;
+    font-size: 24px;
+    font-weight: bold;
+}

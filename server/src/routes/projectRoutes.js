@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const Project = require("../models/Projects");
 const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
@@ -7,7 +8,9 @@ router.post("/", authMiddleware, async (req, res) => {
   try {
     const { name, description } = req.body;
 
-    if (!name) {
+    const trimmedName = name?.trim();
+
+    if (!trimmedName) {
       return res
         .status(400)
         .json({ message: "Please enter a project name to continue" });
@@ -15,8 +18,8 @@ router.post("/", authMiddleware, async (req, res) => {
 
     const project = await Project.create({
       owner: req.user._id,
-      name,
-      description,
+      name: trimmedName,
+      description: description ?? "",
     });
 
     return res.status(201).json(project);
@@ -89,12 +92,12 @@ router.put("/:projectId", authMiddleware, async (req, res) => {
         .json({ message: "Not authorized to update this project" });
     }
 
-    if (name) {
-      project.name = name;
+    if (trimmedName) {
+      project.name = name.trim();
     }
 
     if (description !== undefined) {
-      project.description = description;
+      project.description = description.trim();
     }
 
     await project.save();

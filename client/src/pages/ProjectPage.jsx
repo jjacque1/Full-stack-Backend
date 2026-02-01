@@ -18,6 +18,8 @@ export default function ProjectPage() {
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [newTaskStatus, setNewTaskStatus] = useState("To Do");
 
+  const allowedStatuses = ["To Do", "In Progress", "Done"];
+
   // --------------------
   // Fetch Project Details
   // --------------------
@@ -41,27 +43,31 @@ export default function ProjectPage() {
   }, [projectId]);
 
   // --------------------
-  // Fetch Tasks 
+  // Fetch Tasks
   // --------------------
+  const refreshTasks = async () => {
+    try {
+      setTasksLoading(true);
+      setTasksError("");
 
-  
+      const data = await apiRequest(`/api/projects/${projectId}/tasks`);
+      setTasks(data);
+    } catch (error) {
+      setTasksError(error.message || "Failed to load tasks.");
+      setTasks([]);
+    } finally {
+      setTasksLoading(false);
+    }
+  };
+
   useEffect(() => {
     async function fetchTasks() {
-      try {
-        setTasksLoading(true);
-        setTasksError("");
-
-        const data = await apiRequest(`/api/projects/${projectId}/tasks`);
-        setTasks(data);
-      } catch (error) {
-        setTasksError(error.message || "Failed to load tasks.");
-        setTasks([]);
-      } finally {
-        setTasksLoading(false);
-      }
+      await refreshTasks();
     }
 
     fetchTasks();
+    // refreshTasks is defined inline above and uses projectId,
+    // but we only want this to run when projectId changes.
   }, [projectId]);
 
   // --------------------
@@ -73,6 +79,11 @@ export default function ProjectPage() {
     const trimmedTitle = newTaskTitle.trim();
     if (!trimmedTitle) {
       setTasksError("Task title is required.");
+      return;
+    }
+
+    if (!allowedStatuses.includes(newTaskStatus)) {
+      setTasksError("Invalid status value.");
       return;
     }
 
@@ -93,11 +104,47 @@ export default function ProjectPage() {
       setNewTaskDescription("");
       setNewTaskStatus("To Do");
 
-      // re-fetch tasks after create
-      const data = await apiRequest(`/api/projects/${projectId}/tasks`);
-      setTasks(data);
+      await refreshTasks();
     } catch (error) {
       setTasksError(error.message || "Failed to create task.");
+    }
+  };
+
+  // --------------------
+  // Update Task Status
+  // --------------------
+  const handleStatusChange = async (taskId, nextStatus) => {
+    if (!allowedStatuses.includes(nextStatus)) return;
+
+    try {
+      setTasksError("");
+
+      await apiRequest(`/api/projects/${projectId}/tasks/${taskId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      await refreshTasks();
+    } catch (error) {
+      setTasksError(error.message || "Failed to update task.");
+    }
+  };
+
+  // --------------------
+  // Delete Task
+  // --------------------
+  const handleDeleteTask = async (taskId) => {
+    try {
+      setTasksError("");
+
+      await apiRequest(`/api/projects/${projectId}/tasks/${taskId}`, {
+        method: "DELETE",
+      });
+
+      await refreshTasks();
+    } catch (error) {
+      setTasksError(error.message || "Failed to delete task.");
     }
   };
 
@@ -160,9 +207,32 @@ export default function ProjectPage() {
       {!tasksLoading && tasks.length > 0 && (
         <ul>
           {tasks.map((task) => (
-            <li key={task._id}>
-              <strong>{task.title}</strong> — {task.status}
+            <li key={task._id} style={{ marginBottom: "1rem" }}>
+              <div>
+                <strong>{task.title}</strong>
+                {task.status === "Done" ? " ✅" : ""}
+              </div>
+
               {task.description && <div>{task.description}</div>}
+
+              <div style={{ marginTop: "0.5rem" }}>
+                <select
+                  value={task.status}
+                  onChange={(e) => handleStatusChange(task._id, e.target.value)}
+                >
+                  <option value="To Do">To Do</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Done">Done</option>
+                </select>
+
+                <button
+                  type="button"
+                  onClick={() => handleDeleteTask(task._id)}
+                  style={{ marginLeft: "0.5rem" }}
+                >
+                  Delete
+                </button>
+              </div>
             </li>
           ))}
         </ul>

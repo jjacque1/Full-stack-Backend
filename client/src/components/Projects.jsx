@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../util/api";
 import "./Projects.css";
 
 export default function ProjectsPanel() {
+  const navigate = useNavigate();
+
   const [projects, setProjects] = useState([]);
   const [newProjectName, setNewProjectName] = useState("");
 
@@ -87,7 +90,6 @@ export default function ProjectsPanel() {
           `/api/projects/${selectedProject._id}/tasks`,
         );
 
-        // If backend returns { tasks: [...] }, use: setTasks(data.tasks)
         setTasks(data);
       } catch (error) {
         setTasksError(error.message || "Failed to load tasks.");
@@ -136,6 +138,7 @@ export default function ProjectsPanel() {
       {!isLoading && !errorMessage && projects.length === 0 && (
         <p>No projects yet.</p>
       )}
+
       <form onSubmit={handleCreateProject}>
         <input
           type="text"
@@ -157,12 +160,23 @@ export default function ProjectsPanel() {
           <ul>
             {projects.map((project) => (
               <li key={project._id}>
-                <button
-                  type="button"
-                  onClick={() => setSelectedProject(project)}
-                >
-                  {project.name}
-                </button>
+                <div className="project-row">
+                  <button
+                    type="button"
+                    className="project-select"
+                    onClick={() => setSelectedProject(project)}
+                  >
+                    {project.name}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="project-view"
+                    onClick={() => navigate(`/projects/${project._id}`)}
+                  >
+                    View
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

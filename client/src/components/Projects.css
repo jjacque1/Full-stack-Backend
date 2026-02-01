@@ -96,3 +96,20 @@ li span {
 p {
   margin: 0.75rem 0;
 }
+
+.project-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.project-select {
+  flex: 1;
+  max-width: 280px;
+}
+
+.project-view {
+  width: 90px;
+}
+

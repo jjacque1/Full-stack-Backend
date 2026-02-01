@@ -5,6 +5,8 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./components/Projects";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
+import ProjectPage from "./pages/ProjectPage";
+
 import "../src/App.css";
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/projects" element={<Projects />} />
+        <Route path="/projects/:projectId" element={<ProjectPage />} />
+
         <Route path="/" element={<Home />} />
       </Routes>
     </div>

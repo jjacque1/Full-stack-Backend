@@ -2,6 +2,7 @@ import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import ProjectsPanel from "../components/Projects";
+import "./Dashboard.css"
 
 function Dashboard() {
   const navigate = useNavigate();

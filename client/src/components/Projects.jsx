@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../util/api";
+import "./Projects.css";
 
 export default function ProjectsPanel() {
   const [projects, setProjects] = useState([]);
@@ -126,15 +127,15 @@ export default function ProjectsPanel() {
     }
   };
 
-  
-
   // --------------------
   // Render
   // --------------------
   return (
     <section>
       <h2>Projects</h2>
-
+      {!isLoading && !errorMessage && projects.length === 0 && (
+        <p>No projects yet.</p>
+      )}
       <form onSubmit={handleCreateProject}>
         <input
           type="text"
@@ -150,10 +151,6 @@ export default function ProjectsPanel() {
 
       {isLoading && <p>Loading...</p>}
       {errorMessage && <p>{errorMessage}</p>}
-
-      {!isLoading && !errorMessage && projects.length === 0 && (
-        <p>No projects yet.</p>
-      )}
 
       {!isLoading && projects.length > 0 && (
         <>

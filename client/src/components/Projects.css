@@ -1,0 +1,98 @@
+/* Overall container */
+section {
+  max-width: 700px;
+  margin: 0 auto; /* centers horizontally */
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Headings */
+h2,
+h3 {
+  margin-bottom: 1rem;
+}
+
+/* Forms */
+form {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+input[type="text"] {
+  padding: 0.5rem 0.75rem;
+  width: 60%;
+  max-width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #2563eb; /* blue */
+  color: white;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Project list */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+li {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Project buttons */
+li button {
+  width: 100%;
+  max-width: 350px;
+  background-color: #f3f4f6;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+
+li button:hover {
+  background-color: #e5e7eb;
+}
+
+/* Selected project details */
+div p {
+  margin: 0.25rem 0;
+}
+
+/* Tasks */
+h3 {
+  margin-top: 2rem;
+}
+
+ul li {
+  padding: 0.5rem;
+}
+
+/* Status text */
+li span {
+  font-size: 0.85rem;
+  color: #16a34a;
+}
+
+/* Messages */
+p {
+  margin: 0.75rem 0;
+}

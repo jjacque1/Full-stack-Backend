@@ -1,0 +1,23 @@
+/* Main dashboard wrapper */
+.wrapper {
+  max-width: 900px;
+  margin: 0 auto; /* center horizontally */
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Dashboard title */
+.wrapper h2 {
+  margin-bottom: 0.5rem;
+}
+
+/* Logged-in user info */
+.wrapper p {
+  margin-bottom: 2rem;
+  color: #374151;
+}
+
+/* Strong text */
+.wrapper strong {
+  color: #111827;
+}

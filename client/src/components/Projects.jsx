@@ -18,10 +18,6 @@ export default function ProjectsPanel() {
   const [editProjectName, setEditProjectName] = useState("");
   const [editProjectDescription, setEditProjectDescription] = useState("");
 
-  const [tasks, setTasks] = useState([]);
-  const [tasksLoading, setTasksLoading] = useState(false);
-  const [tasksError, setTasksError] = useState("");
-  const [newTaskTitle, setNewTaskTitle] = useState("");
 
   // --------------------
   // Fetch Projects
@@ -82,65 +78,9 @@ export default function ProjectsPanel() {
     setSelectedProject(project);
     setEditProjectName(project.name || "");
     setEditProjectDescription(project.description || "");
+
   };
 
-  // --------------------
-  // Fetch Tasks (when project changes)
-  // --------------------
-  useEffect(() => {
-    if (!selectedProject) {
-      setTasks([]);
-      return;
-    }
-
-    async function fetchTasks() {
-      try {
-        setTasks([]);
-        setTasksLoading(true);
-        setTasksError("");
-
-        const data = await apiRequest(
-          `/api/projects/${selectedProject._id}/tasks`,
-        );
-
-        setTasks(data);
-      } catch (error) {
-        setTasksError(error.message || "Failed to load tasks.");
-        setTasks([]);
-      } finally {
-        setTasksLoading(false);
-      }
-    }
-
-    fetchTasks();
-  }, [selectedProject]);
-
-  // --------------------
-  // Create Task (Dashboard quick add)
-  // --------------------
-  const handleCreateTask = async (event) => {
-    event.preventDefault();
-
-    const trimmedTitle = newTaskTitle.trim();
-    if (!trimmedTitle || !selectedProject) return;
-
-    try {
-      await apiRequest(`/api/projects/${selectedProject._id}/tasks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: trimmedTitle }),
-      });
-
-      setNewTaskTitle("");
-
-      const data = await apiRequest(
-        `/api/projects/${selectedProject._id}/tasks`,
-      );
-      setTasks(data);
-    } catch (error) {
-      setTasksError(error.message || "Failed to create task.");
-    }
-  };
 
   // --------------------
   // Update Project (Owner only)
@@ -203,8 +143,6 @@ export default function ProjectsPanel() {
       setSelectedProject(null);
       setEditProjectName("");
       setEditProjectDescription("");
-      setTasks([]);
-      setNewTaskTitle("");
 
       await fetchProjects();
     } catch (error) {
@@ -303,35 +241,6 @@ export default function ProjectsPanel() {
                   </button>
                 </div>
               </form>
-
-              <h3>Tasks</h3>
-
-              <form onSubmit={handleCreateTask}>
-                <input
-                  type="text"
-                  placeholder="New task"
-                  value={newTaskTitle}
-                  onChange={(e) => setNewTaskTitle(e.target.value)}
-                />
-                <button type="submit">Add Task</button>
-              </form>
-
-              {tasksLoading && <p>Loading tasks...</p>}
-              {tasksError && <p>{tasksError}</p>}
-
-              {!tasksLoading && !tasksError && tasks.length === 0 && (
-                <p>No tasks yet.</p>
-              )}
-
-              {!tasksLoading && tasks.length > 0 && (
-                <ul>
-                  {tasks.map((task) => (
-                    <li key={task._id}>
-                      {task.title} {task.status === "Done" ? "(done)" : ""}
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
           ) : (
             <p>Select a project to see details.</p>

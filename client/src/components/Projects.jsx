@@ -1,72 +1,109 @@
-import { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../util/api";
-import { AuthContext } from "../context/authContext";
+import "./Projects.css";
 
-export default function ProjectPage() {
+export default function ProjectsPanel() {
   const navigate = useNavigate();
-  const { projectId } = useParams();
 
-  const { isLoggedIn } = useContext(AuthContext);
+  const [projects, setProjects] = useState([]);
+  const [newProjectName, setNewProjectName] = useState("");
 
-  const allowedStatuses = ["To Do", "In Progress", "Done"];
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const [project, setProject] = useState(null);
-  const [projectLoading, setProjectLoading] = useState(false);
-  const [projectError, setProjectError] = useState("");
+  const [selectedProject, setSelectedProject] = useState(null);
 
+  // Edit fields for selected project
+  const [editProjectName, setEditProjectName] = useState("");
+  const [editProjectDescription, setEditProjectDescription] = useState("");
+
+  // Tasks (view only here; add tasks on Project page)
   const [tasks, setTasks] = useState([]);
   const [tasksLoading, setTasksLoading] = useState(false);
   const [tasksError, setTasksError] = useState("");
 
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskDescription, setNewTaskDescription] = useState("");
-  const [newTaskStatus, setNewTaskStatus] = useState("To Do");
+  // --------------------
+  // Fetch Projects
+  // --------------------
+  const fetchProjects = async () => {
+    try {
+      setIsLoading(true);
+      setErrorMessage("");
 
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login");
+      const data = await apiRequest("/api/projects");
+      setProjects(data);
+    } catch (error) {
+      setErrorMessage(error.message || "Failed to load projects.");
+    } finally {
+      setIsLoading(false);
     }
-  }, [isLoggedIn, navigate]);
+  };
 
-  // --------------------
-  // Fetch Project Details
-  // --------------------
   useEffect(() => {
-    async function fetchProject() {
-      if (!isLoggedIn) {
-        return null;
-      }
+    fetchProjects();
+  }, []);
 
-      try {
-        setProjectLoading(true);
-        setProjectError("");
+  // --------------------
+  // Create Project
+  // --------------------
+  const handleCreateProject = async (event) => {
+    event.preventDefault();
 
-        const data = await apiRequest(`/api/projects/${projectId}`);
-        setProject(data);
-      } catch (error) {
-        setProjectError(error.message || "Failed to load project.");
-        setProject(null);
-      } finally {
-        setProjectLoading(false);
-      }
+    const trimmedName = newProjectName.trim();
+    if (!trimmedName) {
+      setErrorMessage("Project name is required.");
+      return;
     }
 
-    fetchProject();
-  }, [projectId, isLoggedIn]);
+    try {
+      setIsLoading(true);
+      setErrorMessage("");
+
+      await apiRequest("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: trimmedName }),
+      });
+
+      setNewProjectName("");
+      await fetchProjects();
+    } catch (error) {
+      setErrorMessage(error.message || "Failed to create project.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // --------------------
-  // Fetch Tasks (ONLY if project loaded)
+  // When selecting a project, preload edit fields
+  // --------------------
+  const handleSelectProject = (project) => {
+    setSelectedProject(project);
+    setEditProjectName(project.name || "");
+    setEditProjectDescription(project.description || "");
+  };
+
+  // --------------------
+  // Fetch Tasks (when project changes)
   // --------------------
   useEffect(() => {
-    if (!project || !isLoggedIn) return;
+    if (!selectedProject) {
+      setTasks([]);
+      setTasksError("");
+      return;
+    }
 
     async function fetchTasks() {
       try {
+        setTasks([]);
         setTasksLoading(true);
         setTasksError("");
 
-        const data = await apiRequest(`/api/projects/${projectId}/tasks`);
+        const data = await apiRequest(
+          `/api/projects/${selectedProject._id}/tasks`,
+        );
+
         setTasks(data);
       } catch (error) {
         setTasksError(error.message || "Failed to load tasks.");
@@ -77,213 +114,197 @@ export default function ProjectPage() {
     }
 
     fetchTasks();
-  }, [project, projectId, isLoggedIn]);
-
-    if (!isLoggedIn) {
-    return null;
-  }
+  }, [selectedProject]);
 
   // --------------------
-  // Refresh Tasks
+  // Update Project (Owner only)
   // --------------------
-  const refreshTasks = async () => {
-    if (!project) return;
-
-    try {
-      setTasksLoading(true);
-      setTasksError("");
-
-      const data = await apiRequest(`/api/projects/${projectId}/tasks`);
-      setTasks(data);
-    } catch (error) {
-      setTasksError(error.message || "Failed to load tasks.");
-      setTasks([]);
-    } finally {
-      setTasksLoading(false);
-    }
-  };
-
-  // --------------------
-  // Create Task
-  // --------------------
-  const handleCreateTask = async (event) => {
+  const handleUpdateProject = async (event) => {
     event.preventDefault();
 
-    const trimmedTitle = newTaskTitle.trim();
-    if (!trimmedTitle) {
-      setTasksError("Task title is required.");
-      return;
-    }
+    if (!selectedProject) return;
 
-    if (!allowedStatuses.includes(newTaskStatus)) {
-      setTasksError("Invalid status value.");
+    const trimmedName = editProjectName.trim();
+    if (!trimmedName) {
+      setErrorMessage("Project name is required.");
       return;
     }
 
     try {
-      setTasksError("");
+      setIsLoading(true);
+      setErrorMessage("");
 
-      await apiRequest(`/api/projects/${projectId}/tasks`, {
-        method: "POST",
+      const updated = await apiRequest(`/api/projects/${selectedProject._id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: trimmedTitle,
-          description: newTaskDescription,
-          status: newTaskStatus,
+          name: trimmedName,
+          description: editProjectDescription,
         }),
       });
 
-      setNewTaskTitle("");
-      setNewTaskDescription("");
-      setNewTaskStatus("To Do");
+      setSelectedProject(updated);
+      setEditProjectName(updated.name || "");
+      setEditProjectDescription(updated.description || "");
 
-      await refreshTasks();
+      await fetchProjects();
     } catch (error) {
-      setTasksError(error.message || "Failed to create task.");
+      setErrorMessage(error.message || "Failed to update project.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // --------------------
-  // Update Task Status
+  // Delete Project (Owner only)
   // --------------------
-  const handleStatusChange = async (taskId, nextStatus) => {
-    if (!allowedStatuses.includes(nextStatus)) return;
+  const handleDeleteProject = async () => {
+    if (!selectedProject) return;
+
+    const confirmDelete = window.confirm(
+      `Delete project "${selectedProject.name}"? This cannot be undone.`,
+    );
+    if (!confirmDelete) return;
 
     try {
-      setTasksError("");
+      setIsLoading(true);
+      setErrorMessage("");
 
-      await apiRequest(`/api/projects/${projectId}/tasks/${taskId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: nextStatus }),
-      });
-
-      await refreshTasks();
-    } catch (error) {
-      setTasksError(error.message || "Failed to update task.");
-    }
-  };
-
-  // --------------------
-  // Delete Task
-  // --------------------
-  const handleDeleteTask = async (taskId) => {
-    try {
-      setTasksError("");
-
-      await apiRequest(`/api/projects/${projectId}/tasks/${taskId}`, {
+      await apiRequest(`/api/projects/${selectedProject._id}`, {
         method: "DELETE",
       });
 
-      await refreshTasks();
+      setSelectedProject(null);
+      setEditProjectName("");
+      setEditProjectDescription("");
+      setTasks([]);
+      setTasksError("");
+
+      await fetchProjects();
     } catch (error) {
-      setTasksError(error.message || "Failed to delete task.");
+      setErrorMessage(error.message || "Failed to delete project.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // --------------------
+  // Render
+  // --------------------
   return (
-    <div className="project-wrapper">
-      <div className="project-header">
-        <button type="button" onClick={() => navigate("/dashboard")}>
-          ← Back
+    <section>
+      <h1>Create Projects</h1>
+
+      {!isLoading && !errorMessage && projects.length === 0 && (
+        <p>No projects yet.</p>
+      )}
+
+      <form onSubmit={handleCreateProject}>
+        <input
+          type="text"
+          placeholder="Project name"
+          value={newProjectName}
+          onChange={(e) => setNewProjectName(e.target.value)}
+          disabled={isLoading}
+        />
+        <button type="submit" disabled={isLoading}>
+          Create
         </button>
+      </form>
 
-        <h2>Project Details</h2>
-      </div>
+      {isLoading && <p>Loading...</p>}
+      {errorMessage && <p>{errorMessage}</p>}
 
-      {projectLoading && <p>Loading project...</p>}
-      {projectError && <p className="error">{projectError}</p>}
+      {!isLoading && projects.length > 0 && (
+        <>
+          <h1>Project list</h1>
+          <ul>
+            {projects.map((project) => (
+              <li key={project._id}>
+                <div className="project-row">
+                  <button
+                    type="button"
+                    className="project-select"
+                    onClick={() => handleSelectProject(project)}
+                  >
+                    {project.name}
+                  </button>
 
-      {!projectLoading && project && (
-        <div className="project-card">
-          <h3>{project.name}</h3>
-          <p>{project.description}</p>
-        </div>
-      )}
+                  <button
+                    type="button"
+                    className="project-view"
+                    onClick={() => navigate(`/projects/${project._id}`)}
+                  >
+                    View
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
 
-      {/* Only show tasks UI if project loaded successfully */}
-      {project && (
-        <div className="tasks-section">
-          <h3>Tasks</h3>
+          {selectedProject ? (
+            <div className="project-details">
+              <form onSubmit={handleUpdateProject} className="project-edit-form">
+                <h3>click on the project name you want to edit</h3>
+                <input
+                  type="text"
+                  placeholder="Update Project name"
+                  value={editProjectName}
+                  onChange={(e) => setEditProjectName(e.target.value)}
+                  disabled={isLoading}
+                />
 
-          <form onSubmit={handleCreateTask} className="task-form">
-            <input
-              type="text"
-              placeholder="Task title"
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-            />
+                {/* <input
+                  type="text"
+                  placeholder="Project description"
+                  value={editProjectDescription}
+                  onChange={(e) => setEditProjectDescription(e.target.value)}
+                  disabled={isLoading}
+                /> */}
 
-            <input
-              type="text"
-              placeholder="Task description (optional)"
-              value={newTaskDescription}
-              onChange={(e) => setNewTaskDescription(e.target.value)}
-            />
+                <div className="project-edit-actions">
+                  <button type="submit" disabled={isLoading}>
+                    Save
+                  </button>
 
-            <select
-              value={newTaskStatus}
-              onChange={(e) => setNewTaskStatus(e.target.value)}
-            >
-              <option value="To Do">To Do</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Done">Done</option>
-            </select>
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={handleDeleteProject}
+                    disabled={isLoading}
+                  >
+                    Delete Project
+                  </button>
+                </div>
+              </form>
 
-            <button type="submit">Add Task</button>
-          </form>
+              <h3>Tasks</h3>
+              <p>
+                To add tasks, click <strong>View</strong> to open the project.
+              </p>
 
-          {tasksLoading && <p>Loading tasks...</p>}
-          {tasksError && <p className="error">{tasksError}</p>}
+              {tasksLoading && <p>Loading tasks...</p>}
+              {tasksError && <p>{tasksError}</p>}
 
-          {!tasksLoading && !tasksError && tasks.length === 0 && (
-            <p>No tasks yet.</p>
+              {!tasksLoading && !tasksError && tasks.length === 0 && (
+                <p>No tasks yet.</p>
+              )}
+
+              {!tasksLoading && tasks.length > 0 && (
+                <ul>
+                  {tasks.map((task) => (
+                    <li key={task._id}>
+                      {task.title} {task.status === "Done" ? "(done)" : ""}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : (
+            <p>Select a project to see details.</p>
           )}
-
-          {!tasksLoading && tasks.length > 0 && (
-            <ul className="task-list">
-              {tasks.map((task) => (
-                <li key={task._id} className="task-item">
-                  <div className="task-top">
-                    <div>
-                      <strong>{task.title}</strong>
-                      {task.status === "Done" ? " " : ""}
-                    </div>
-
-                    <button
-                      type="button"
-                      className="danger"
-                      onClick={() => handleDeleteTask(task._id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-
-                  {task.description && (
-                    <div className="task-desc">{task.description}</div>
-                  )}
-
-                  <div className="task-actions">
-                    <label>
-                      Status:{" "}
-                      <select
-                        value={task.status}
-                        onChange={(e) =>
-                          handleStatusChange(task._id, e.target.value)
-                        }
-                      >
-                        <option value="To Do">To Do</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Done">Done</option>
-                      </select>
-                    </label>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        </>
       )}
-    </div>
+    </section>
   );
 }

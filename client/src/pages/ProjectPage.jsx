@@ -44,11 +44,9 @@ export default function ProjectPage() {
   }, [projectId]);
 
   // --------------------
-  // Fetch Tasks (ONLY if project loaded)
+  // Fetch Tasks (no eslint disable)
   // --------------------
   useEffect(() => {
-    if (!project) return;
-
     async function fetchTasks() {
       try {
         setTasksLoading(true);
@@ -65,14 +63,12 @@ export default function ProjectPage() {
     }
 
     fetchTasks();
-  }, [project, projectId]);
+  }, [projectId]);
 
   // --------------------
-  // Refresh Tasks
+  // Refresh Tasks (for after actions)
   // --------------------
   const refreshTasks = async () => {
-    if (!project) return;
-
     try {
       setTasksLoading(true);
       setTasksError("");
@@ -181,93 +177,90 @@ export default function ProjectPage() {
       {!projectLoading && project && (
         <div className="project-card">
           <h3>{project.name}</h3>
-          <p>{project.description}</p>
+          {/* <p>{project.description || "No description yet."}</p> */}
         </div>
       )}
 
-      {/* ✅ CHANGE #1: Only show tasks UI if project loaded successfully */}
-      {project && (
-        <div className="tasks-section">
-          <h3>Tasks</h3>
+      <div className="tasks-section">
+        <h3>Tasks</h3>
 
-          <form onSubmit={handleCreateTask} className="task-form">
-            <input
-              type="text"
-              placeholder="Task title"
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-            />
+        <form onSubmit={handleCreateTask} className="task-form">
+          <input
+            type="text"
+            placeholder="Task title"
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+          />
 
-            <input
-              type="text"
-              placeholder="Task description (optional)"
-              value={newTaskDescription}
-              onChange={(e) => setNewTaskDescription(e.target.value)}
-            />
+          <input
+            type="text"
+            placeholder="Task description (optional)"
+            value={newTaskDescription}
+            onChange={(e) => setNewTaskDescription(e.target.value)}
+          />
 
-            <select
-              value={newTaskStatus}
-              onChange={(e) => setNewTaskStatus(e.target.value)}
-            >
-              <option value="To Do">To Do</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Done">Done</option>
-            </select>
+          <select
+            value={newTaskStatus}
+            onChange={(e) => setNewTaskStatus(e.target.value)}
+          >
+            <option value="To Do">To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
 
-            <button type="submit">Add Task</button>
-          </form>
+          <button type="submit">Add Task</button>
+        </form>
 
-          {tasksLoading && <p>Loading tasks...</p>}
-          {tasksError && <p className="error">{tasksError}</p>}
+        {tasksLoading && <p>Loading tasks...</p>}
+        {tasksError && <p className="error">{tasksError}</p>}
 
-          {!tasksLoading && !tasksError && tasks.length === 0 && (
-            <p>No tasks yet.</p>
-          )}
+        {!tasksLoading && !tasksError && tasks.length === 0 && (
+          <p>No tasks yet.</p>
+        )}
 
-          {!tasksLoading && tasks.length > 0 && (
-            <ul className="task-list">
-              {tasks.map((task) => (
-                <li key={task._id} className="task-item">
-                  <div className="task-top">
-                    <div>
-                      <strong>{task.title}</strong>
-                      {task.status === "Done" ? " " : ""}
-                    </div>
+        {!tasksLoading && tasks.length > 0 && (
+          <ul className="task-list">
+            {tasks.map((task) => (
+              <li key={task._id} className="task-item">
+                <div className="task-top">
+                  <div>
+                    <strong>{task.title}</strong>
+                    {task.status === "Done" ? " " : ""}
+                  </div>
 
-                    <button
-                      type="button"
-                      className="danger"
-                      onClick={() => handleDeleteTask(task._id)}
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={() => handleDeleteTask(task._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+
+                {task.description && (
+                  <div className="task-desc">{task.description}</div>
+                )}
+
+                <div className="task-actions">
+                  <label>
+                    Status:{" "}
+                    <select
+                      value={task.status}
+                      onChange={(e) =>
+                        handleStatusChange(task._id, e.target.value)
+                      }
                     >
-                      Delete
-                    </button>
-                  </div>
-
-                  {task.description && (
-                    <div className="task-desc">{task.description}</div>
-                  )}
-
-                  <div className="task-actions">
-                    <label>
-                      Status:{" "}
-                      <select
-                        value={task.status}
-                        onChange={(e) =>
-                          handleStatusChange(task._id, e.target.value)
-                        }
-                      >
-                        <option value="To Do">To Do</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Done">Done</option>
-                      </select>
-                    </label>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
+                      <option value="To Do">To Do</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Done">Done</option>
+                    </select>
+                  </label>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

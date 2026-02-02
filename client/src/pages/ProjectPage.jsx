@@ -165,7 +165,7 @@ export default function ProjectPage() {
     <div className="project-wrapper">
       <div className="project-header">
         <button type="button" onClick={() => navigate("/dashboard")}>
-          ← Back
+          Back
         </button>
 
         <h2>Project Details</h2>

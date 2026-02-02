@@ -244,8 +244,12 @@ export default function ProjectsPanel() {
 
           {selectedProject ? (
             <div className="project-details">
-              <form onSubmit={handleUpdateProject} className="project-edit-form">
-                <h3>click on the project name you want to edit</h3>
+              <form
+                onSubmit={handleUpdateProject}
+                className="project-edit-form"
+              >
+                <p>Select a project</p>
+                <h3>Edit Project below</h3>
                 <input
                   type="text"
                   placeholder="Update Project name"
@@ -294,7 +298,9 @@ export default function ProjectsPanel() {
                 <ul>
                   {tasks.map((task) => (
                     <li key={task._id}>
-                      {task.title} {task.status === "Done" ? "(done)" : ""}
+                      {task.title} {task.status === "Done" && "(done)"}
+                      {task.status === "In Progress" && "(in progress)"}
+                      {task.status === "To Do" && "(to do)"}
                     </li>
                   ))}
                 </ul>

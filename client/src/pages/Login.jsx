@@ -19,6 +19,14 @@ function Login() {
     setErrorMessage("");
     setLoading(true);
 
+     const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setErrorMessage("Please enter your email to continue");
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await apiRequest("/api/auth/login", {
         method: "POST",

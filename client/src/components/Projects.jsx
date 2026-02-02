@@ -1,252 +1,289 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { apiRequest } from "../util/api";
-import "./Projects.css";
+import { AuthContext } from "../context/authContext";
 
-export default function ProjectsPanel() {
+export default function ProjectPage() {
   const navigate = useNavigate();
+  const { projectId } = useParams();
 
-  const [projects, setProjects] = useState([]);
-  const [newProjectName, setNewProjectName] = useState("");
+  const { isLoggedIn } = useContext(AuthContext);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const allowedStatuses = ["To Do", "In Progress", "Done"];
 
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [project, setProject] = useState(null);
+  const [projectLoading, setProjectLoading] = useState(false);
+  const [projectError, setProjectError] = useState("");
 
-  // Edit fields for selected project
-  const [editProjectName, setEditProjectName] = useState("");
-  const [editProjectDescription, setEditProjectDescription] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
+  const [tasksError, setTasksError] = useState("");
 
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+  const [newTaskStatus, setNewTaskStatus] = useState("To Do");
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/login");
+    }
+  }, [isLoggedIn, navigate]);
 
   // --------------------
-  // Fetch Projects
+  // Fetch Project Details
   // --------------------
-  const fetchProjects = async () => {
+  useEffect(() => {
+    async function fetchProject() {
+      if (!isLoggedIn) {
+        return null;
+      }
+
+      try {
+        setProjectLoading(true);
+        setProjectError("");
+
+        const data = await apiRequest(`/api/projects/${projectId}`);
+        setProject(data);
+      } catch (error) {
+        setProjectError(error.message || "Failed to load project.");
+        setProject(null);
+      } finally {
+        setProjectLoading(false);
+      }
+    }
+
+    fetchProject();
+  }, [projectId, isLoggedIn]);
+
+  // --------------------
+  // Fetch Tasks (ONLY if project loaded)
+  // --------------------
+  useEffect(() => {
+    if (!project || !isLoggedIn) return;
+
+    async function fetchTasks() {
+      try {
+        setTasksLoading(true);
+        setTasksError("");
+
+        const data = await apiRequest(`/api/projects/${projectId}/tasks`);
+        setTasks(data);
+      } catch (error) {
+        setTasksError(error.message || "Failed to load tasks.");
+        setTasks([]);
+      } finally {
+        setTasksLoading(false);
+      }
+    }
+
+    fetchTasks();
+  }, [project, projectId, isLoggedIn]);
+
+    if (!isLoggedIn) {
+    return null;
+  }
+
+  // --------------------
+  // Refresh Tasks
+  // --------------------
+  const refreshTasks = async () => {
+    if (!project) return;
+
     try {
-      setIsLoading(true);
-      setErrorMessage("");
+      setTasksLoading(true);
+      setTasksError("");
 
-      const data = await apiRequest("/api/projects");
-      setProjects(data);
+      const data = await apiRequest(`/api/projects/${projectId}/tasks`);
+      setTasks(data);
     } catch (error) {
-      setErrorMessage(error.message || "Failed to load projects.");
+      setTasksError(error.message || "Failed to load tasks.");
+      setTasks([]);
     } finally {
-      setIsLoading(false);
+      setTasksLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
   // --------------------
-  // Create Project
+  // Create Task
   // --------------------
-  const handleCreateProject = async (event) => {
+  const handleCreateTask = async (event) => {
     event.preventDefault();
 
-    const trimmedName = newProjectName.trim();
-    if (!trimmedName) {
-      setErrorMessage("Project name is required.");
+    const trimmedTitle = newTaskTitle.trim();
+    if (!trimmedTitle) {
+      setTasksError("Task title is required.");
+      return;
+    }
+
+    if (!allowedStatuses.includes(newTaskStatus)) {
+      setTasksError("Invalid status value.");
       return;
     }
 
     try {
-      setIsLoading(true);
-      setErrorMessage("");
+      setTasksError("");
 
-      await apiRequest("/api/projects", {
+      await apiRequest(`/api/projects/${projectId}/tasks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: trimmedName }),
+        body: JSON.stringify({
+          title: trimmedTitle,
+          description: newTaskDescription,
+          status: newTaskStatus,
+        }),
       });
 
-      setNewProjectName("");
-      await fetchProjects();
+      setNewTaskTitle("");
+      setNewTaskDescription("");
+      setNewTaskStatus("To Do");
+
+      await refreshTasks();
     } catch (error) {
-      setErrorMessage(error.message || "Failed to create project.");
-    } finally {
-      setIsLoading(false);
+      setTasksError(error.message || "Failed to create task.");
     }
   };
 
   // --------------------
-  // When selecting a project, preload edit fields
+  // Update Task Status
   // --------------------
-  const handleSelectProject = (project) => {
-    setSelectedProject(project);
-    setEditProjectName(project.name || "");
-    setEditProjectDescription(project.description || "");
-
-  };
-
-
-  // --------------------
-  // Update Project (Owner only)
-  // --------------------
- const handleUpdateProject = async (event) => {
-  event.preventDefault();
-
-  if (!selectedProject) return;
-
-  const trimmedName = editProjectName.trim(); 
-  if (!trimmedName) {
-    setErrorMessage("Project name is required.");
-    return;
-  }
-
-  try {
-    setIsLoading(true);
-    setErrorMessage("");
-
-    const updated = await apiRequest(`/api/projects/${selectedProject._id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: trimmedName,
-        description: editProjectDescription,
-      }),
-    });
-
-    setSelectedProject(updated);
-    setEditProjectName(updated.name || "");
-    setEditProjectDescription(updated.description || "");
-
-    await fetchProjects();
-  } catch (error) {
-    setErrorMessage(error.message || "Failed to update project.");
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-  // --------------------
-  // Delete Project (Owner only)
-  // --------------------
-  const handleDeleteProject = async () => {
-    if (!selectedProject) return;
-
-    const confirmDelete = window.confirm(
-      `Delete project "${selectedProject.name}"? This cannot be undone.`,
-    );
-    if (!confirmDelete) return;
+  const handleStatusChange = async (taskId, nextStatus) => {
+    if (!allowedStatuses.includes(nextStatus)) return;
 
     try {
-      setIsLoading(true);
-      setErrorMessage("");
+      setTasksError("");
 
-      await apiRequest(`/api/projects/${selectedProject._id}`, {
+      await apiRequest(`/api/projects/${projectId}/tasks/${taskId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      await refreshTasks();
+    } catch (error) {
+      setTasksError(error.message || "Failed to update task.");
+    }
+  };
+
+  // --------------------
+  // Delete Task
+  // --------------------
+  const handleDeleteTask = async (taskId) => {
+    try {
+      setTasksError("");
+
+      await apiRequest(`/api/projects/${projectId}/tasks/${taskId}`, {
         method: "DELETE",
       });
 
-      setSelectedProject(null);
-      setEditProjectName("");
-      setEditProjectDescription("");
-
-      await fetchProjects();
+      await refreshTasks();
     } catch (error) {
-      setErrorMessage(error.message || "Failed to delete project.");
-    } finally {
-      setIsLoading(false);
+      setTasksError(error.message || "Failed to delete task.");
     }
   };
 
-  // --------------------
-  // Render
-  // --------------------
   return (
-    <section>
-      <h2>Projects</h2>
-
-      {!isLoading && !errorMessage && projects.length === 0 && (
-        <p>No projects yet.</p>
-      )}
-
-      <form onSubmit={handleCreateProject}>
-        <input
-          type="text"
-          placeholder="New project name"
-          value={newProjectName}
-          onChange={(e) => setNewProjectName(e.target.value)}
-          disabled={isLoading}
-        />
-        <button type="submit" disabled={isLoading}>
-          Create
+    <div className="project-wrapper">
+      <div className="project-header">
+        <button type="button" onClick={() => navigate("/dashboard")}>
+          ← Back
         </button>
-      </form>
 
-      {isLoading && <p>Loading...</p>}
-      {errorMessage && <p>{errorMessage}</p>}
+        <h2>Project Details</h2>
+      </div>
 
-      {!isLoading && projects.length > 0 && (
-        <>
-          <ul>
-            {projects.map((project) => (
-              <li key={project._id}>
-                <div className="project-row">
-                  <button
-                    type="button"
-                    className="project-select"
-                    onClick={() => handleSelectProject(project)}
-                  >
-                    {project.name}
-                  </button>
+      {projectLoading && <p>Loading project...</p>}
+      {projectError && <p className="error">{projectError}</p>}
 
-                  <button
-                    type="button"
-                    className="project-view"
-                    onClick={() => navigate(`/projects/${project._id}`)}
-                  >
-                    View
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          {selectedProject ? (
-            <div className="project-details">
-              
-
-              <form onSubmit={handleUpdateProject} className="project-edit-form">
-                <input
-                  type="text"
-                  placeholder="Project name"
-                  value={editProjectName}
-                  onChange={(e) => setEditProjectName(e.target.value)}
-                  disabled={isLoading}
-                />
-
-                <input
-                  type="text"
-                  placeholder="Project description"
-                  value={editProjectDescription}
-                  onChange={(e) => setEditProjectDescription(e.target.value)}
-                  disabled={isLoading}
-                />
-
-                <div className="project-edit-actions">
-                  <button type="submit" disabled={isLoading}>
-                    Save
-                  </button>
-
-                  <button
-                    type="button"
-                    className="danger"
-                    onClick={handleDeleteProject}
-                    disabled={isLoading}
-                  >
-                    Delete Project
-                  </button>
-                </div>
-              </form>
-            </div>
-          ) : (
-            <p>Select a project to see details.</p>
-          )}
-        </>
+      {!projectLoading && project && (
+        <div className="project-card">
+          <h3>{project.name}</h3>
+          <p>{project.description}</p>
+        </div>
       )}
-    </section>
+
+      {/* Only show tasks UI if project loaded successfully */}
+      {project && (
+        <div className="tasks-section">
+          <h3>Tasks</h3>
+
+          <form onSubmit={handleCreateTask} className="task-form">
+            <input
+              type="text"
+              placeholder="Task title"
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+            />
+
+            <input
+              type="text"
+              placeholder="Task description (optional)"
+              value={newTaskDescription}
+              onChange={(e) => setNewTaskDescription(e.target.value)}
+            />
+
+            <select
+              value={newTaskStatus}
+              onChange={(e) => setNewTaskStatus(e.target.value)}
+            >
+              <option value="To Do">To Do</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
+
+            <button type="submit">Add Task</button>
+          </form>
+
+          {tasksLoading && <p>Loading tasks...</p>}
+          {tasksError && <p className="error">{tasksError}</p>}
+
+          {!tasksLoading && !tasksError && tasks.length === 0 && (
+            <p>No tasks yet.</p>
+          )}
+
+          {!tasksLoading && tasks.length > 0 && (
+            <ul className="task-list">
+              {tasks.map((task) => (
+                <li key={task._id} className="task-item">
+                  <div className="task-top">
+                    <div>
+                      <strong>{task.title}</strong>
+                      {task.status === "Done" ? " " : ""}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="danger"
+                      onClick={() => handleDeleteTask(task._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+
+                  {task.description && (
+                    <div className="task-desc">{task.description}</div>
+                  )}
+
+                  <div className="task-actions">
+                    <label>
+                      Status:{" "}
+                      <select
+                        value={task.status}
+                        onChange={(e) =>
+                          handleStatusChange(task._id, e.target.value)
+                        }
+                      >
+                        <option value="To Do">To Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Done">Done</option>
+                      </select>
+                    </label>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

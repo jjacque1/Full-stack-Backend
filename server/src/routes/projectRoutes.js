@@ -131,6 +131,8 @@ router.delete("/:projectId", authMiddleware, async (req, res) => {
         .json({ message: "Not authorized to delete this project" });
     }
 
+     await Task.deleteMany({ project: projectId });
+
     await project.deleteOne();
 
     return res.status(200).json({ message: "Project deleted successfully" });

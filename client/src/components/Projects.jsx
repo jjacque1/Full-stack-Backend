@@ -282,7 +282,7 @@ export default function ProjectsPanel() {
                 </div>
               </form>
 
-              <h3>Tasks</h3>
+              <h3 className="tasks-Ondashboardh3">Tasks</h3>
               <p>
                 To add tasks, click <strong>View</strong> to open the project.
               </p>

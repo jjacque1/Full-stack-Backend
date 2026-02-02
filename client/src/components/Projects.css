@@ -110,11 +110,19 @@ li {
   background: #e5e7eb;
 }
 
+.tasks-Ondashboardh3 {
+  padding-top: 68px;
+}
+
 /* -----------------------------
    Selected project details card
 ------------------------------ */
 
 .project-details {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-direction: column;
   margin-top: 14px;
   padding: 14px;
   border: 1px solid #e5e7eb;
@@ -245,6 +253,8 @@ li {
     align-items: center;
     justify-content: space-between;
   }
+
+ 
 }
 
 /* -----------------------------
@@ -265,6 +275,10 @@ li {
   input[type="email"],
   input[type="password"] {
     padding: 12px;
+  }
+
+   .tasks-Ondashboardh3 {
+    padding-top: 0;
   }
 }
 

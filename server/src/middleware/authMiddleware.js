@@ -9,11 +9,10 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: "No authorization header" });
     }
 
-    const parts = authHeader.split(" ");
-    const token = parts[1];
+    const [scheme, token] = authHeader.split(" ");
 
-    if (!token) {
-      return res.status(401).json({ message: "No token provided" });
+    if (scheme !== "Bearer" || !token) {
+      return res.status(401).json({ message: "Invalid authorization format" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -25,7 +24,7 @@ const authMiddleware = async (req, res, next) => {
 
     req.user = user;       //Attach user to request: Protected routes has accesss to ((req.user._id) (req.user.email) (req.user.name))
 
-    next();   //lets the request continues
+     return next();   //lets the request continues
   } catch (error) {
     return res.status(401).json({ message: "Invalid token" });
   }

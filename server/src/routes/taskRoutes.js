@@ -5,34 +5,22 @@ const authMiddleware = require("../middleware/authMiddleware");
 const Project = require("../models/Projects");
 const Task = require("../models/Tasks");
 
-const router = express.Router({ mergeParams: true }); //lets this router read :projectId from the parent URL.
+const router = express.Router({ mergeParams: true }); // lets this router read :projectId from the parent URL.
 
-const allowedStatuses = ["To Do", "In Progress", "Done"];
 // CREATE TASK in a project (Owner only)
-
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const { projectId } = req.params;
     const { title, description, status } = req.body;
 
-    // Validate projectId
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
       return res.status(400).json({ message: "Invalid project ID" });
     }
 
-    // Validate title
-
-    const trimmedTitle = title?.tirm();
-
-    if (!trimmedTitle) {
+    if (!title) {
       return res
         .status(400)
         .json({ message: "Please Add Task Title to continue" });
-    }
-
-    // Validate status if provided
-    if (status !== undefined && !allowedStatuses.includes(status)) {
-      return res.status(400).json({ message: "Invalid status value" });
     }
 
     const project = await Project.findById(projectId);
@@ -49,9 +37,9 @@ router.post("/", authMiddleware, async (req, res) => {
 
     const task = await Task.create({
       project: project._id,
-      title: trimmedTitle,
-      description: description ?? "",
-      status: status ?? "To Do",
+      title,
+      description,
+      status,
     });
 
     return res.status(201).json(task);
@@ -61,12 +49,10 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 // GET ALL TASKS for a project (Owner only)
-
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const { projectId } = req.params;
 
-    // Validate projectId
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
       return res.status(400).json({ message: "Invalid project ID" });
     }
@@ -94,23 +80,16 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // UPDATE TASK in a project (Owner only)
-
 router.put("/:taskId", authMiddleware, async (req, res) => {
   try {
     const { projectId, taskId } = req.params;
     const { title, description, status } = req.body;
 
-    // Validate IDs
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
       return res.status(400).json({ message: "Invalid project ID" });
     }
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
       return res.status(400).json({ message: "Invalid task ID" });
-    }
-
-    // Validate status if provided
-    if (status !== undefined && !allowedStatuses.includes(status)) {
-      return res.status(400).json({ message: "Invalid status value" });
     }
 
     const project = await Project.findById(projectId);
@@ -131,15 +110,7 @@ router.put("/:taskId", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    if (title !== undefined) {
-      const trimmedTitle = title.trim();
-      if (!trimmedTitle) {
-        return res.status(400).json({ message: "Task title cannot be empty" });
-      }
-
-      task.title = trimmedTitle;
-    }
-
+    if (title !== undefined) task.title = title;
     if (description !== undefined) task.description = description;
     if (status !== undefined) task.status = status;
 
@@ -152,12 +123,10 @@ router.put("/:taskId", authMiddleware, async (req, res) => {
 });
 
 // DELETE TASK in a project (Owner only)
-
 router.delete("/:taskId", authMiddleware, async (req, res) => {
   try {
     const { projectId, taskId } = req.params;
 
-    // Validate IDs
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
       return res.status(400).json({ message: "Invalid project ID" });
     }

@@ -16,14 +16,20 @@ const userSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-//-------Add Bcrypt Hashing so the model hashes password automatically-------//
-
+// ------- Add Bcrypt Hashing so the model hashes password automatically ------- //
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return;
+  try {
+    if (!this.isModified("password")) {
+      return next();
+    }
 
-  const saltRounds = 10;
-  this.password = await bcrypt.hash(this.password, saltRounds);
-  next();
+    const saltRounds = 10;
+    this.password = await bcrypt.hash(this.password, saltRounds);
+
+    return next();
+  } catch (error) {
+    return next(error);
+  }
 });
 
 module.exports = mongoose.model("User", userSchema);

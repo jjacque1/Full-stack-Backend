@@ -29,7 +29,6 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 // GET ALL PROJECTS
-
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const projects = await Project.find({ owner: req.user._id }).sort({
@@ -41,15 +40,14 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-//GET ONE PROJECT (Owner ONLY)
-
+// GET ONE PROJECT (Owner ONLY)
 router.get("/:projectId", authMiddleware, async (req, res) => {
   try {
     const { projectId } = req.params;
 
-     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-          return res.status(400).json({ message: "Invalid project ID" });
-        }
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
 
     const project = await Project.findById(projectId);
 
@@ -70,15 +68,14 @@ router.get("/:projectId", authMiddleware, async (req, res) => {
 });
 
 // UPDATE PROJECT (Owner ONLY)
-
 router.put("/:projectId", authMiddleware, async (req, res) => {
   try {
     const { projectId } = req.params;
     const { name, description } = req.body;
 
-     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-          return res.status(400).json({ message: "Invalid project ID" });
-        }
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
 
     const project = await Project.findById(projectId);
 
@@ -92,14 +89,19 @@ router.put("/:projectId", authMiddleware, async (req, res) => {
         .json({ message: "Not authorized to update this project" });
     }
 
+    const trimmedName = name?.trim();
+
     if (trimmedName) {
-      project.name = name.trim();
+      project.name = trimmedName;
     }
 
     if (description !== undefined) {
-      project.description = description.trim();
+      if (description === null) {
+        project.description = "";
+      } else if (typeof description === "string") {
+        project.description = description.trim();
+      }
     }
-
     await project.save();
 
     return res.status(200).json(project);
@@ -108,15 +110,14 @@ router.put("/:projectId", authMiddleware, async (req, res) => {
   }
 });
 
-//=====DELETE PROJECT (Owner ONLY)=====/
-
+// DELETE PROJECT (Owner ONLY)
 router.delete("/:projectId", authMiddleware, async (req, res) => {
   try {
     const { projectId } = req.params;
 
-     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-          return res.status(400).json({ message: "Invalid project ID" });
-        }
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
 
     const project = await Project.findById(projectId);
 

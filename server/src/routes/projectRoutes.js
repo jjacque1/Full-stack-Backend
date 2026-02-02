@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const Project = require("../models/Projects");
+const Task = require("../models/Tasks");
 const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 
@@ -96,12 +97,9 @@ router.put("/:projectId", authMiddleware, async (req, res) => {
     }
 
     if (description !== undefined) {
-      if (description === null) {
-        project.description = "";
-      } else if (typeof description === "string") {
-        project.description = description.trim();
-      }
+      project.description = description.trim();
     }
+
     await project.save();
 
     return res.status(200).json(project);
@@ -131,9 +129,8 @@ router.delete("/:projectId", authMiddleware, async (req, res) => {
         .json({ message: "Not authorized to delete this project" });
     }
 
-     await Task.deleteMany({ project: projectId });
-
-    await project.deleteOne();
+    await Task.deleteMany({ project: projectId });
+    await Project.deleteOne({ _id: projectId });
 
     return res.status(200).json({ message: "Project deleted successfully" });
   } catch (error) {

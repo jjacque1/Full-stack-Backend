@@ -192,7 +192,7 @@ export default function ProjectsPanel() {
   // Render
   // --------------------
   return (
-    <section>
+    <section className="projects-panel">
       <h1>Create Projects</h1>
 
       {!isLoading && !errorMessage && projects.length === 0 && (
@@ -218,7 +218,7 @@ export default function ProjectsPanel() {
       {!isLoading && projects.length > 0 && (
         <>
           <h1>Project list</h1>
-          <ul>
+          <ul className="project-list">
             {projects.map((project) => (
               <li key={project._id}>
                 <div className="project-row">

@@ -18,19 +18,21 @@ function Dashboard() {
     return null; // prevents flash before redirect
   }
 
-  return (
-    <div className="wrapper">
+ return (
+  <div className="dashboard">
+    <div className="dashboard-header">
       <h2>Dashboard</h2>
 
       <p>
-        Logged in as: <strong>{user?.name}</strong> ({user?.email})
+        Logged in as <strong>{user?.name}</strong>
+        <span className="email">({user?.email})</span>
       </p>
-
-      
-      <ProjectsPanel />
-
     </div>
-  );
+
+    <ProjectsPanel />
+  </div>
+);
+
 }
 
 export default Dashboard;

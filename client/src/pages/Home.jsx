@@ -4,7 +4,7 @@ import "./Home.css";
 function Home() {
   return (
     <div className="hero-page-wrapper">
-      <div className="container">
+      <div className="home-container">
         <h1>
           Work Smarter with <span className="colorHighlight">Tic-Tasker </span>
         </h1>
@@ -20,8 +20,10 @@ function Home() {
         </div>
         <div className="para-bottom">
           <p className="para">What do you want to manage?</p>
-          <p className="para2"> <span className="color">Log-in
-            </span> or <span className="color">Sign-up</span> to get started</p>
+          <p className="para2">
+            <span className="color">Log-in</span> or{" "}
+            <span className="color">Sign-up</span> to get started
+          </p>
         </div>
       </div>
     </div>

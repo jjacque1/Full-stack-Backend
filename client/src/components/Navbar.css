@@ -37,7 +37,7 @@
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 12px; /* 🔑 keeps everything side by side */
+  gap: 12px; /* keeps everything side by side */
 }
 
 /* Links */
@@ -94,5 +94,14 @@
   .logo {
     width: 48px;
     height: 48px;
+  }
+}
+
+/* -----------------------------
+   Mobile: hide brand text
+------------------------------ */
+@media (max-width: 640px) {
+  .brand-text {
+    display: none;
   }
 }

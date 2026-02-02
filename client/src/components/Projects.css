@@ -28,7 +28,7 @@ p {
 
 form {
   display: flex;
-  flex-direction: column; /* ✅ mobile: stack */
+  flex-direction: column; /* mobile: stack */
   gap: 10px;
   margin: 12px 0 18px;
 }
@@ -81,7 +81,7 @@ li {
 /* Project row: mobile wraps nicely */
 .project-row {
   display: flex;
-  flex-direction: column; /* ✅ mobile: stack buttons */
+  flex-direction: column; /* mobile: stack buttons */
   gap: 10px;
   width: 100%;
   padding: 12px;
@@ -131,7 +131,7 @@ li {
 
 .project-edit-actions {
   display: flex;
-  flex-direction: column; /* ✅ mobile: stack Save/Delete */
+  flex-direction: column; /* mobile: stack Save/Delete */
   gap: 10px;
   width: 100%;
 }
@@ -153,7 +153,7 @@ li {
 
 .task-item {
   display: flex;
-  flex-direction: column; /* ✅ mobile: stack title + status */
+  flex-direction: column; /* mobile: stack title + status */
   gap: 8px;
   padding: 12px;
   border: 1px solid #e5e7eb;
@@ -199,7 +199,7 @@ li {
 ------------------------------ */
 
 @media (min-width: 640px) {
-  section {
+  .projects-panel {
     padding: 20px;
   }
 
@@ -218,19 +218,16 @@ li {
     min-width: 140px;
   }
 
-  /* Project row: name + view side-by-side */
+  /* Project row: buttons side-by-side and equal size */
   .project-row {
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    gap: 10px;
   }
 
-  .project-select {
-    flex: 1;
-  }
-
+  .project-select,
   .project-view {
-    width: 110px;
+    flex: 1; /*equal width */
   }
 
   /* Edit actions: Save/Delete side-by-side */
@@ -247,5 +244,34 @@ li {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+  }
+}
+
+/* -----------------------------
+   Extra responsive tweaks
+------------------------------ */
+
+/* Very small phones */
+@media (max-width: 380px) {
+  section {
+    padding: 12px;
+  }
+
+  button {
+    padding: 12px; /* easier tap */
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    padding: 12px;
+  }
+}
+
+/* Tablet and up: make project buttons same size */
+@media (min-width: 640px) {
+  .project-select,
+  .project-view {
+    flex: 1; /* equal width */
   }
 }

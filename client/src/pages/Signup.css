@@ -1,8 +1,8 @@
 /* -----------------------------
-   Login page (mobile-first)
+   Signup page (mobile-first)
 ------------------------------ */
 
-.login-wrapper {
+.signup-wrapper {
   min-height: calc(100vh - 64px); /* account for navbar */
   display: flex;
   flex-direction: column;
@@ -12,13 +12,13 @@
 }
 
 /* Title */
-.login-wrapper h2 {
+.signup-wrapper h2 {
   margin-bottom: 24px;
   font-size: 28px;
 }
 
 /* Form container */
-.login-form {
+.signup-form {
   width: 100%;
   max-width: 420px;
   display: flex;
@@ -44,7 +44,7 @@
 }
 
 /* Inputs */
-.login-form input {
+.signup-form input {
   padding: 14px 16px;
   border: 1px solid #d1d5db;
   border-radius: 10px;
@@ -81,11 +81,11 @@
    Tablet+
 ------------------------------ */
 @media (min-width: 768px) {
-  .login-wrapper h2 {
+  .signup-wrapper h2 {
     font-size: 32px;
   }
 
-  .login-form {
+  .signup-form {
     padding: 28px 32px;
   }
 
@@ -98,7 +98,7 @@
    Small phones
 ------------------------------ */
 @media (max-width: 360px) {
-  .login-wrapper h2 {
+  .signup-wrapper h2 {
     font-size: 24px;
   }
 

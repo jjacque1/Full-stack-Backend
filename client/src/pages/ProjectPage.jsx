@@ -44,7 +44,7 @@ export default function ProjectPage() {
   }, [projectId]);
 
   // --------------------
-  // Fetch Tasks (no eslint disable)
+  // Fetch Tasks
   // --------------------
   useEffect(() => {
     async function fetchTasks() {
@@ -66,7 +66,7 @@ export default function ProjectPage() {
   }, [projectId]);
 
   // --------------------
-  // Refresh Tasks (for after actions)
+  // Refresh Tasks
   // --------------------
   const refreshTasks = async () => {
     try {
@@ -164,9 +164,15 @@ export default function ProjectPage() {
   return (
     <div className="project-wrapper">
       <div className="project-header">
-        <button type="button" onClick={() => navigate("/dashboard")}>
+        <button
+          type="button"
+          
+          onClick={() => navigate("/dashboard")}
+        >
           Back
         </button>
+
+        
 
         <h2>Project Details</h2>
       </div>
@@ -208,7 +214,9 @@ export default function ProjectPage() {
             <option value="Done">Done</option>
           </select>
 
-          <button type="submit">Add Task</button>
+          <button type="submit" className="add-task-btn">
+            Add Task
+          </button>
         </form>
 
         {tasksLoading && <p>Loading tasks...</p>}
@@ -222,11 +230,10 @@ export default function ProjectPage() {
           <ul className="task-list">
             {tasks.map((task) => (
               <li key={task._id} className="task-item">
-                <div className="task-top">
-                  <div>
+                  <div className="task-title">
                     <strong>{task.title}</strong>
-                    {task.status === "Done" ? " " : ""}
                   </div>
+                <div className="task-top">
 
                   <button
                     type="button"

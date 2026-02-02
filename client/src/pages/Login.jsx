@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../util/api";
 import { AuthContext } from "../context/authContext";
-import "./Login.css"
+import "./Login.css";
 
 function Login() {
   const navigate = useNavigate();
@@ -36,13 +36,12 @@ function Login() {
   }
 
   return (
-    <div className="wrapper">
-
+    <div className="login-wrapper">
       <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
+
+      <form className="login-form" onSubmit={handleSubmit}>
+        <div className="form-group">
           <label>Email</label>
-          <br />
           <input
             type="email"
             value={email}
@@ -51,9 +50,8 @@ function Login() {
           />
         </div>
 
-        <div style={{ marginTop: 12 }}>
+        <div className="form-group">
           <label>Password</label>
-          <br />
           <input
             type="password"
             value={password}
@@ -62,11 +60,11 @@ function Login() {
           />
         </div>
 
-        <button className="form-btn" style={{ marginTop: 12 }} type="submit" disabled={loading}>
+        <button className="form-btn" type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Log in"}
         </button>
 
-        {errorMessage ? <p style={{ marginTop: 12 }}>{errorMessage}</p> : null}
+        {errorMessage && <p className="error">{errorMessage}</p>}
       </form>
     </div>
   );

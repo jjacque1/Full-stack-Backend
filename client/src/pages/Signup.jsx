@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../util/api";
+import "./Signup.css";
 
 function Signup() {
   const navigate = useNavigate();
@@ -24,7 +25,6 @@ function Signup() {
         body: JSON.stringify({ name, email, password }),
       });
 
-      // after successful signup, go to login
       navigate("/login");
     } catch (error) {
       setErrorMessage(error.message);
@@ -34,13 +34,12 @@ function Signup() {
   }
 
   return (
-    <div className="wrapper">
+    <div className="signup-wrapper">
       <h2>Signup</h2>
 
-      <form onSubmit={handleSubmit}>
-        <div>
+      <form className="signup-form" onSubmit={handleSubmit}>
+        <div className="form-group">
           <label>Name</label>
-          <br />
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -49,9 +48,8 @@ function Signup() {
           />
         </div>
 
-        <div style={{ marginTop: 12 }}>
+        <div className="form-group">
           <label>Email</label>
-          <br />
           <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -60,9 +58,8 @@ function Signup() {
           />
         </div>
 
-        <div style={{ marginTop: 12 }}>
+        <div className="form-group">
           <label>Password</label>
-          <br />
           <input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -71,11 +68,11 @@ function Signup() {
           />
         </div>
 
-        <button style={{ marginTop: 12 }} disabled={loading} type="submit">
+        <button className="form-btn" disabled={loading} type="submit">
           {loading ? "Creating account..." : "Sign up"}
         </button>
 
-        {errorMessage ? <p style={{ marginTop: 12 }}>{errorMessage}</p> : null}
+        {errorMessage && <p className="error">{errorMessage}</p>}
       </form>
     </div>
   );

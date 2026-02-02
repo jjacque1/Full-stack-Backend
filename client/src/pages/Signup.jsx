@@ -17,6 +17,21 @@ function Signup() {
     setErrorMessage("");
     setLoading(true);
 
+      const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
+    if (!trimmedName) {
+      setErrorMessage("Please enter your name to continue");
+      setLoading(false);
+      return;
+    }
+
+    if (!trimmedEmail) {
+      setErrorMessage("Please enter your email to continue");
+      setLoading(false);
+      return;
+    }
+
     try {
       await apiRequest("/api/auth/signup", {
         method: "POST",

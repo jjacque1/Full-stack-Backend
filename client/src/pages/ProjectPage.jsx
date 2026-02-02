@@ -44,9 +44,11 @@ export default function ProjectPage() {
   }, [projectId]);
 
   // --------------------
-  // Fetch Tasks (no eslint disable)
+  // Fetch Tasks (ONLY if project loaded)
   // --------------------
   useEffect(() => {
+
+    if (!project) return;
     async function fetchTasks() {
       try {
         setTasksLoading(true);
@@ -63,7 +65,7 @@ export default function ProjectPage() {
     }
 
     fetchTasks();
-  }, [projectId]);
+  },  [project, projectId]);
 
   // --------------------
   // Refresh Tasks (for after actions)

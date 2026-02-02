@@ -47,8 +47,8 @@ export default function ProjectPage() {
   // Fetch Tasks (ONLY if project loaded)
   // --------------------
   useEffect(() => {
-
     if (!project) return;
+
     async function fetchTasks() {
       try {
         setTasksLoading(true);
@@ -65,12 +65,14 @@ export default function ProjectPage() {
     }
 
     fetchTasks();
-  },  [project, projectId]);
+  }, [project, projectId]);
 
   // --------------------
-  // Refresh Tasks (for after actions)
+  // Refresh Tasks
   // --------------------
   const refreshTasks = async () => {
+    if (!project) return;
+
     try {
       setTasksLoading(true);
       setTasksError("");
@@ -183,86 +185,89 @@ export default function ProjectPage() {
         </div>
       )}
 
-      <div className="tasks-section">
-        <h3>Tasks</h3>
+      {/* ✅ CHANGE #1: Only show tasks UI if project loaded successfully */}
+      {project && (
+        <div className="tasks-section">
+          <h3>Tasks</h3>
 
-        <form onSubmit={handleCreateTask} className="task-form">
-          <input
-            type="text"
-            placeholder="Task title"
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-          />
+          <form onSubmit={handleCreateTask} className="task-form">
+            <input
+              type="text"
+              placeholder="Task title"
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+            />
 
-          <input
-            type="text"
-            placeholder="Task description (optional)"
-            value={newTaskDescription}
-            onChange={(e) => setNewTaskDescription(e.target.value)}
-          />
+            <input
+              type="text"
+              placeholder="Task description (optional)"
+              value={newTaskDescription}
+              onChange={(e) => setNewTaskDescription(e.target.value)}
+            />
 
-          <select
-            value={newTaskStatus}
-            onChange={(e) => setNewTaskStatus(e.target.value)}
-          >
-            <option value="To Do">To Do</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Done">Done</option>
-          </select>
+            <select
+              value={newTaskStatus}
+              onChange={(e) => setNewTaskStatus(e.target.value)}
+            >
+              <option value="To Do">To Do</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
 
-          <button type="submit">Add Task</button>
-        </form>
+            <button type="submit">Add Task</button>
+          </form>
 
-        {tasksLoading && <p>Loading tasks...</p>}
-        {tasksError && <p className="error">{tasksError}</p>}
+          {tasksLoading && <p>Loading tasks...</p>}
+          {tasksError && <p className="error">{tasksError}</p>}
 
-        {!tasksLoading && !tasksError && tasks.length === 0 && (
-          <p>No tasks yet.</p>
-        )}
+          {!tasksLoading && !tasksError && tasks.length === 0 && (
+            <p>No tasks yet.</p>
+          )}
 
-        {!tasksLoading && tasks.length > 0 && (
-          <ul className="task-list">
-            {tasks.map((task) => (
-              <li key={task._id} className="task-item">
-                <div className="task-top">
-                  <div>
-                    <strong>{task.title}</strong>
-                    {task.status === "Done" ? " " : ""}
+          {!tasksLoading && tasks.length > 0 && (
+            <ul className="task-list">
+              {tasks.map((task) => (
+                <li key={task._id} className="task-item">
+                  <div className="task-top">
+                    <div>
+                      <strong>{task.title}</strong>
+                      {task.status === "Done" ? " " : ""}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="danger"
+                      onClick={() => handleDeleteTask(task._id)}
+                    >
+                      Delete
+                    </button>
                   </div>
 
-                  <button
-                    type="button"
-                    className="danger"
-                    onClick={() => handleDeleteTask(task._id)}
-                  >
-                    Delete
-                  </button>
-                </div>
+                  {task.description && (
+                    <div className="task-desc">{task.description}</div>
+                  )}
 
-                {task.description && (
-                  <div className="task-desc">{task.description}</div>
-                )}
-
-                <div className="task-actions">
-                  <label>
-                    Status:{" "}
-                    <select
-                      value={task.status}
-                      onChange={(e) =>
-                        handleStatusChange(task._id, e.target.value)
-                      }
-                    >
-                      <option value="To Do">To Do</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Done">Done</option>
-                    </select>
-                  </label>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                  <div className="task-actions">
+                    <label>
+                      Status:{" "}
+                      <select
+                        value={task.status}
+                        onChange={(e) =>
+                          handleStatusChange(task._id, e.target.value)
+                        }
+                      >
+                        <option value="To Do">To Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Done">Done</option>
+                      </select>
+                    </label>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }

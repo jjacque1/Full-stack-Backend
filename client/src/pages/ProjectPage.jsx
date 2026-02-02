@@ -177,7 +177,7 @@ export default function ProjectPage() {
       {!projectLoading && project && (
         <div className="project-card">
           <h3>{project.name}</h3>
-          <p>{project.description || "No description yet."}</p>
+          <p>{project.description}</p>
         </div>
       )}
 

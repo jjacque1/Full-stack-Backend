@@ -113,3 +113,34 @@ p {
   width: 90px;
 }
 
+.project-details {
+  margin-top: 1.25rem;
+}
+
+.project-edit-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0 2rem;
+}
+
+.project-edit-form input {
+  width: 100%;
+  max-width: 420px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.project-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+.danger {
+  background: #dc2626;
+  color: white;
+}

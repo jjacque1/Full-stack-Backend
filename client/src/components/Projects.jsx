@@ -14,6 +14,10 @@ export default function ProjectsPanel() {
 
   const [selectedProject, setSelectedProject] = useState(null);
 
+  // Edit fields for selected project
+  const [editProjectName, setEditProjectName] = useState("");
+  const [editProjectDescription, setEditProjectDescription] = useState("");
+
   const [tasks, setTasks] = useState([]);
   const [tasksLoading, setTasksLoading] = useState(false);
   const [tasksError, setTasksError] = useState("");
@@ -63,12 +67,21 @@ export default function ProjectsPanel() {
       });
 
       setNewProjectName("");
-      fetchProjects();
+      await fetchProjects();
     } catch (error) {
       setErrorMessage(error.message || "Failed to create project.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // --------------------
+  // When selecting a project, preload edit fields
+  // --------------------
+  const handleSelectProject = (project) => {
+    setSelectedProject(project);
+    setEditProjectName(project.name || "");
+    setEditProjectDescription(project.description || "");
   };
 
   // --------------------
@@ -103,7 +116,7 @@ export default function ProjectsPanel() {
   }, [selectedProject]);
 
   // --------------------
-  // Create Task
+  // Create Task (Dashboard quick add)
   // --------------------
   const handleCreateTask = async (event) => {
     event.preventDefault();
@@ -130,11 +143,84 @@ export default function ProjectsPanel() {
   };
 
   // --------------------
+  // Update Project (Owner only)
+  // --------------------
+ const handleUpdateProject = async (event) => {
+  event.preventDefault();
+
+  if (!selectedProject) return;
+
+  const trimmedName = editProjectName.trim(); 
+  if (!trimmedName) {
+    setErrorMessage("Project name is required.");
+    return;
+  }
+
+  try {
+    setIsLoading(true);
+    setErrorMessage("");
+
+    const updated = await apiRequest(`/api/projects/${selectedProject._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: trimmedName,
+        description: editProjectDescription,
+      }),
+    });
+
+    setSelectedProject(updated);
+    setEditProjectName(updated.name || "");
+    setEditProjectDescription(updated.description || "");
+
+    await fetchProjects();
+  } catch (error) {
+    setErrorMessage(error.message || "Failed to update project.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  // --------------------
+  // Delete Project (Owner only)
+  // --------------------
+  const handleDeleteProject = async () => {
+    if (!selectedProject) return;
+
+    const confirmDelete = window.confirm(
+      `Delete project "${selectedProject.name}"? This cannot be undone.`,
+    );
+    if (!confirmDelete) return;
+
+    try {
+      setIsLoading(true);
+      setErrorMessage("");
+
+      await apiRequest(`/api/projects/${selectedProject._id}`, {
+        method: "DELETE",
+      });
+
+      setSelectedProject(null);
+      setEditProjectName("");
+      setEditProjectDescription("");
+      setTasks([]);
+      setNewTaskTitle("");
+
+      await fetchProjects();
+    } catch (error) {
+      setErrorMessage(error.message || "Failed to delete project.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // --------------------
   // Render
   // --------------------
   return (
     <section>
       <h2>Projects</h2>
+
       {!isLoading && !errorMessage && projects.length === 0 && (
         <p>No projects yet.</p>
       )}
@@ -164,7 +250,7 @@ export default function ProjectsPanel() {
                   <button
                     type="button"
                     className="project-select"
-                    onClick={() => setSelectedProject(project)}
+                    onClick={() => handleSelectProject(project)}
                   >
                     {project.name}
                   </button>
@@ -182,48 +268,73 @@ export default function ProjectsPanel() {
           </ul>
 
           {selectedProject ? (
-            <div>
-              <p>Project Name: {selectedProject.name}</p>
-              <p>
-                Description:{" "}
-                {selectedProject.description || "No description yet."}
-              </p>
+            <div className="project-details">
+              
+
+              <form onSubmit={handleUpdateProject} className="project-edit-form">
+                <input
+                  type="text"
+                  placeholder="Project name"
+                  value={editProjectName}
+                  onChange={(e) => setEditProjectName(e.target.value)}
+                  disabled={isLoading}
+                />
+
+                <input
+                  type="text"
+                  placeholder="Project description"
+                  value={editProjectDescription}
+                  onChange={(e) => setEditProjectDescription(e.target.value)}
+                  disabled={isLoading}
+                />
+
+                <div className="project-edit-actions">
+                  <button type="submit" disabled={isLoading}>
+                    Save
+                  </button>
+
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={handleDeleteProject}
+                    disabled={isLoading}
+                  >
+                    Delete Project
+                  </button>
+                </div>
+              </form>
+
+              <h3>Tasks</h3>
+
+              <form onSubmit={handleCreateTask}>
+                <input
+                  type="text"
+                  placeholder="New task"
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                />
+                <button type="submit">Add Task</button>
+              </form>
+
+              {tasksLoading && <p>Loading tasks...</p>}
+              {tasksError && <p>{tasksError}</p>}
+
+              {!tasksLoading && !tasksError && tasks.length === 0 && (
+                <p>No tasks yet.</p>
+              )}
+
+              {!tasksLoading && tasks.length > 0 && (
+                <ul>
+                  {tasks.map((task) => (
+                    <li key={task._id}>
+                      {task.title} {task.status === "Done" ? "(done)" : ""}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ) : (
             <p>Select a project to see details.</p>
-          )}
-        </>
-      )}
-
-      {selectedProject && (
-        <>
-          <h3>Tasks</h3>
-
-          <form onSubmit={handleCreateTask}>
-            <input
-              type="text"
-              placeholder="New task"
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-            />
-            <button type="submit">Add Task</button>
-          </form>
-
-          {tasksLoading && <p>Loading tasks...</p>}
-          {tasksError && <p>{tasksError}</p>}
-
-          {!tasksLoading && !tasksError && tasks.length === 0 && (
-            <p>No tasks yet.</p>
-          )}
-
-          {!tasksLoading && tasks.length > 0 && (
-            <ul>
-              {tasks.map((task) => (
-                <li key={task._id}>
-                  {task.title} {task.status === "Done" ? "(done)" : ""}
-                </li>
-              ))}
-            </ul>
           )}
         </>
       )}

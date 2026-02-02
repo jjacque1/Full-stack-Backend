@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import "./Navbar.css";
-import logo from "../assets/JJ.logo.PNG"
+import logo from "../assets/JJ.logo.PNG";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -10,40 +10,43 @@ function Navbar() {
 
   return (
     <nav className="nav">
-      <div className="logo-wrapper">
-        <img className="logo" src={logo} alt="personal logo" />
-      </div>
-      <div className="link-container">
-        <Link className="link" to="/">
+      {/* Brand */}
+      <Link to="/" className="brand">
+        <img className="logo" src={logo} alt="Tic-Tasker logo" />
+        <span className="brand-text">Tic-Tasker</span>
+      </Link>
+
+      {/* Links – always side by side */}
+      <div className="nav-links">
+        <Link className="nav-link" to="/">
           Home
         </Link>
 
-        <span>
-          {isLoggedIn ? (
-            <>
-              <Link className="link" to="/dashboard">
-                Dashboard
-              </Link>{" "}
-              <button
-                onClick={() => {
-                  logout();
-                  navigate("/login");
-                }}
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link className="link" to="/login">
-                Log in
-              </Link>
-              <Link className="link" to="/signup">
-                Sign up
-              </Link>
-            </>
-          )}
-        </span>
+        {isLoggedIn ? (
+          <>
+            <Link className="nav-link" to="/dashboard">
+              Dashboard
+            </Link>
+            <button
+              className="nav-btn"
+              onClick={() => {
+                logout();
+                navigate("/login");
+              }}
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link className="nav-link" to="/login">
+              Log in
+            </Link>
+            <Link className="nav-link nav-link--primary" to="/signup">
+              Sign up
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );

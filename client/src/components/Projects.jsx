@@ -295,12 +295,18 @@ export default function ProjectsPanel() {
               )}
 
               {!tasksLoading && tasks.length > 0 && (
-                <ul>
+                <ul className="task-list">
                   {tasks.map((task) => (
-                    <li key={task._id}>
-                      {task.title} {task.status === "Done" && "(done)"}
-                      {task.status === "In Progress" && "(in progress)"}
-                      {task.status === "To Do" && "(to do)"}
+                    <li key={task._id} className="task-item">
+                      <span className="task-title">{task.title}</span>
+
+                      <span
+                        className={`task-status ${task.status
+                          .replace(" ", "-")
+                          .toLowerCase()}`}
+                      >
+                        {task.status}
+                      </span>
                     </li>
                   ))}
                 </ul>

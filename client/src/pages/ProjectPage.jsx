@@ -194,7 +194,7 @@ export default function ProjectPage() {
 
           <input
             type="text"
-            placeholder="Task description (optional)"
+            placeholder="description (optional)"
             value={newTaskDescription}
             onChange={(e) => setNewTaskDescription(e.target.value)}
           />

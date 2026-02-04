@@ -1,5 +1,8 @@
 # Full-Stack-MERN-APP (Backend)
 
+This is the backend REST API for the Tic-Tasker application.  
+It handles authentication, project management, task management, and data persistence.
+
 ## Author
 
 Jackson Jacque
@@ -9,9 +12,35 @@ Jackson Jacque
 - Frontend: Add later
 - Backend: Add later
 
-## Screenshot
+---
 
-Add later
+## Planning & Architecture
+
+### Planning Goals
+
+- RESTful API design
+- Secure authentication with JWT
+- Clear separation of concerns
+- Scalable MongoDB data models
+- Production-ready middleware structure
+
+### Execution Strategy
+
+- Express.js for routing
+- MongoDB + Mongoose for persistence
+- JWT for authentication
+- Middleware for route protection
+- Incremental feature development and testing
+
+---
+
+## Architecture Overview
+
+- Authentication routes handle signup/login
+- Protected routes require valid JWT
+- Projects belong to users
+- Tasks belong to projects
+- Cascading deletion handled server-side
 
 ---
 
@@ -22,22 +51,45 @@ server/
   src/
     config/
       db.js
+
+    middleware/
+      authMiddleware.js
+
     models/
       User.js
       Projects.js
       Tasks.js
+
     routes/
       authRoutes.js
       projectRoutes.js
       taskRoutes.js
-    middleware/
-      authMiddleware.js
+
   server.js
   .env
   .gitignore
   package.json
+  README.md
 
 ```
+
+
+---
+
+## How to Run the Backend
+
+### 1. Install dependencies
+```bash
+npm install
+```
+### 2. Environment variables
+
+Create a .env file in /server:
+
+- PORT=3000
+- MONGODB_URI=your_mongodb_connection_string
+- JWT_SECRET=your_secret_key
+
 
 ## Server Dependencies
 

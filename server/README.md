@@ -1,7 +1,16 @@
 # Full-Stack-MERN-APP (Backend)
 
-This is the backend REST API for the Tic-Tasker application.  
-It handles authentication, project management, task management, and data persistence.
+This repository contains the backend REST API for the Tic-Tasker application, a project and task management tool built with the MERN stack.
+
+## The Backend is responsible for:
+
+- User authentication
+
+- Project management
+
+- Task management
+
+- Secure data persistence
 
 ## Author
 
@@ -20,6 +29,7 @@ Jackson Jacque
 
 - RESTful API design
 - Secure authentication with JWT
+- Ownership-based authorization
 - Clear separation of concerns
 - Scalable MongoDB data models
 - Production-ready middleware structure
@@ -30,17 +40,22 @@ Jackson Jacque
 - MongoDB + Mongoose for persistence
 - JWT for authentication
 - Middleware for route protection
-- Incremental feature development and testing
 
 ---
 
 ## Architecture Overview
 
-- Authentication routes handle signup/login
-- Protected routes require valid JWT
+- Users can sign up and log in
+
+- Authentication uses JSON Web Tokens (JWT)
+
+- Protected routes require a valid token
+
 - Projects belong to users
+
 - Tasks belong to projects
-- Cascading deletion handled server-side
+
+- Only project owners can modify their projects and tasks
 
 ---
 
@@ -73,25 +88,38 @@ server/
 
 ```
 
-
 ---
 
-## How to Run the Backend
+## Environment Variables
 
-### 1. Install dependencies
-```bash
-npm install
+This project uses environment variables to store sensitive configuration values such as database credentials and JWT secrets.
+
+These values are not committed to GitHub and must be provided by each developer or deployment environment.
+
+### Required Variables
+
+Create a .env file inside the server/ directory:
+
+```env
+PORT=3000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
 ```
-### 2. Environment variables
 
-Create a .env file in /server:
+### Variable Descriptions
 
-- PORT=3000
-- MONGODB_URI=your_mongodb_connection_string
-- JWT_SECRET=your_secret_key
+- PORT — Port the Express server runs on
+  (Defaults to 3001 if not provided)
 
+- MONGO_URI — MongoDB Atlas connection string
+  (Each developer or deployment should use their own database)
 
-## Server Dependencies
+- JWT_SECRET — Secret key used to sign and verify JSON Web Tokens (Can be any secure random string)
+
+* The .env file is excluded from version control via .gitignore to prevent
+  sensitive information from being committed.
+
+### Server Dependencies
 
 1. express - Web framework
 2. mongoose - MongoDB ODM
@@ -100,11 +128,11 @@ Create a .env file in /server:
 5. bcrypt - Password hashing
 6. jsonwebtoken - JWT authentication
 
-# Development Dependency
+### Development Dependency
 
 1. nodemon - Auto-restart server
 
-# API EndPoints
+### API EndPoints
 
 - Auth
 
@@ -138,12 +166,15 @@ Create a .env file in /server:
 ### Setup
 
 1. Navigate into the server folder:
+
    ```bash
    cd server
    ```
+
 2. Install dependencies:
    npm install
-3. Create a .env file in the server folder and add:
+
+3. CCreate a .env file in the server/ folder (see Environment Variables section above).
    PORT=3000
    MONGO_URI=your_mongodb_connection_string
    JWT_SECRET=your_jwt_secret
@@ -164,6 +195,24 @@ MongoDB connected successfully
 The API will be available at:
 
 ```
-http://localhost:3001
+http://localhost:3000
 
 ```
+
+## Technologies Used
+
+- Node.js
+
+- Express.js
+
+- MongoDB
+
+- Mongoose
+
+- JSON Web Tokens (JWT)
+
+- bcrypt
+
+- dotenv
+
+- cors
